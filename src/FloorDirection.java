@@ -1,4 +1,4 @@
 
-public enum Direction {
+public enum FloorDirection {
 	UP, DOWN
 }
