@@ -1,12 +1,15 @@
+import java.util.ArrayList;
 
 public class Floor {
 	private int floorNumber;
 	private FloorLamp lamp;
 	private FloorButton[] buttons;
+	private boolean door;
 	
-	public Floor(int floorNumber, int buttonNumber) { // a top floor variable is needed to know if the sub system is on the top floor
+	public Floor(int floorNumber, int buttonNumber) {
 		this.floorNumber = floorNumber;
 		this.lamp = new FloorLamp();
+		this.door = false;
 		if (buttonNumber == 1) {
 			if (floorNumber == 1) {
 				this.buttons = new FloorButton[] {new FloorButton(FloorDirection.UP)};
@@ -18,13 +21,34 @@ public class Floor {
 		}
 	}
 	
+	public void pressButton(FloorDirection direction) {
+		buttons[direction.ordinal()].pressButton();
+		lamp.setFloorDirection(direction);
+	}
+	
+	public void handleArrival() {
+		lamp.setState(true);
+		door = true;
+		for (FloorButton button : buttons) {
+			button.clearButton();
+		}
+	}
+	
+	public void handleDeparture() {
+		lamp.setState(false);
+		door = false;
+	}
+	
+	public Object[] getState(){
+		return new Object[] {floorNumber, door, lamp, buttons}; 
+	}
+	
 	
 	
 }
 
 class FloorLamp {
 	private FloorDirection direction;
-	private int currentFloor;
 	private boolean state;
 	
 	public FloorLamp() {
@@ -39,26 +63,7 @@ class FloorLamp {
 		return state;
 	}
 	
-	public void setCurrentFloor(int currentFloor) {
-		if (!state) {
-			System.out.println("The lamp is off");
-			return;
-		}
-		this.currentFloor = currentFloor;
-	}
-	public int getCurrentFloor() {
-		if (!state) {
-			System.out.println("The lamp is off");
-			return -1;
-		}
-		return currentFloor;
-	}
-	
 	public void setFloorDirection(FloorDirection direction) {
-		if (!state) {
-			System.out.println("The lamp is off");
-			return;
-		}
 		this.direction = direction;
 	}
 	
