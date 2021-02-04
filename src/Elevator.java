@@ -68,15 +68,12 @@ public class Elevator implements Runnable {
 		while(true) {
 			
 			System.out.println("Sending Elevator info to scheduler");
-			scheduler.put(0, this.flooNumber);
 			
-			Vector<Integer> info = scheduler.get(0);
-			
-			int floorNum = info.get(1);
+			int floorNum = scheduler.get(0).get(1);
 			goToFloor(floorNum);
 			System.out.println("Elevator moved to the floor requesting");
 			scheduler.put(0, this.flooNumber);
-			int floorNum2 = scheduler.get(0);
+			int floorNum2 = scheduler.get(0).get(1);
 			goToFloor(floorNum2);
 			System.out.println("Elevator moved to the destination floor");
 			scheduler.put(0,this.flooNumber);
