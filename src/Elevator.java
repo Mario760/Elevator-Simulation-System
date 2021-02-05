@@ -70,11 +70,11 @@ public class Elevator implements Runnable {
 			
 			System.out.println("Sending Elevator info to scheduler");
 			scheduler.put(0, this.flooNumber);
-			int floorNum = scheduler.get(0).get(1);
+			int floorNum = scheduler.get(0);
 			goToFloor(floorNum);
 			System.out.println("Elevator moved to the floor requesting");
 			scheduler.put(0, this.flooNumber);
-			int floorNum2 = scheduler.get(0).get(1);
+			int floorNum2 = scheduler.get(0);
 			goToFloor(floorNum2);
 			System.out.println("Elevator moved to the destination floor");
 			scheduler.put(0,this.flooNumber);
