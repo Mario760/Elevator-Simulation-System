@@ -90,11 +90,11 @@ public class FloorSubsystem implements Runnable{
 		        }
 		        info.put("New Floor", Integer.parseInt(instructions[3])); // adding the new floor to the hashmap
 		        PressButton(); // pressing the button before telling the scheduler
-		        scheduler.giveFloor(Integer.parseInt(instructions[1])); // telling the scheduler that an elevator needs to arrive at the floor where the button was pressed
-		        int floor = scheduler.waitForArrival(); // waiting for the arrival of the elevator at a certain floor
+		        scheduler.put(1 ,Integer.parseInt(instructions[1])); // telling the scheduler that an elevator needs to arrive at the floor where the button was pressed
+		        int floor = scheduler.get(1); // waiting for the arrival of the elevator at a certain floor
 		        handleArrival(floor); // handling the arrival of the elevator (the person who pressed the button would enter)
-		        scheduler.giveFloor(Integer.parseInt(instructions[3])); // telling the elevator to go to the new floor
-		        int floor = scheduler.waitForArrival(); // waiting for the elevator to arrive at the new floor
+		        scheduler.put(1, Integer.parseInt(instructions[3])); // telling the elevator to go to the new floor
+		        int floor = scheduler.get(1); // waiting for the elevator to arrive at the new floor
 		        handleArrival(floor); // handling the arrival of the elevator at the new floor (people would be exiting and entering)
 		    }
 		    line.close(); // closing the file
