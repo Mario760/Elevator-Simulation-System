@@ -67,6 +67,7 @@ public class FloorSubsystem implements Runnable{
 	public void handleArrival(int floor) {
 		floors.get(floor - 1).handleArrival();
 		try {
+			System.out.println("Waiting for people to enter/leave");
 			Thread.sleep(9175);
 		} catch (InterruptedException e) {}
 		floors.get(floor -1).handleDeparture();
@@ -77,6 +78,8 @@ public class FloorSubsystem implements Runnable{
 	 */
 	public void readInputFile() {
 		try {
+			int floor;
+			System.out.println("Just got the input file");
 		    LineNumberReader line = new LineNumberReader(new FileReader(filePath)); // LineNumberReader allows for getting the line number. Might be useful in a future iteration
 		    String lineText = null;
 		    while ((lineText = line.readLine()) != null) { // It will read the next line every while iteration (until it reaches the end)
@@ -90,11 +93,12 @@ public class FloorSubsystem implements Runnable{
 		        }
 		        info.put("New Floor", Integer.parseInt(instructions[3])); // adding the new floor to the hashmap
 		        PressButton(); // pressing the button before telling the scheduler
-		        scheduler.giveFloor(Integer.parseInt(instructions[1])); // telling the scheduler that an elevator needs to arrive at the floor where the button was pressed
-		        int floor = scheduler.waitForArrival(); // waiting for the arrival of the elevator at a certain floor
+		        System.out.println("Pee pee poo poo " + instructions[1]);
+		        scheduler.put(1 ,Integer.parseInt(instructions[1])); // telling the scheduler that an elevator needs to arrive at the floor where the button was pressed
+		        floor = scheduler.get(1).get(0); // waiting for the arrival of the elevator at a certain floor
 		        handleArrival(floor); // handling the arrival of the elevator (the person who pressed the button would enter)
-		        scheduler.giveFloor(Integer.parseInt(instructions[3])); // telling the elevator to go to the new floor
-		        int floor = scheduler.waitForArrival(); // waiting for the elevator to arrive at the new floor
+		        scheduler.put(1, Integer.parseInt(instructions[3])); // telling the elevator to go to the new floor
+		        floor = scheduler.get(1).get(0); // waiting for the elevator to arrive at the new floor
 		        handleArrival(floor); // handling the arrival of the elevator at the new floor (people would be exiting and entering)
 		    }
 		    line.close(); // closing the file

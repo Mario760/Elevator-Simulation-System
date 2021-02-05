@@ -23,6 +23,7 @@ public class Elevator implements Runnable {
 		}
 		this.motor = MotorDirection.STOPPED;
 		this.door = false;
+		this.scheduler = scheduler;
 		
 	}
 	/**
@@ -68,7 +69,7 @@ public class Elevator implements Runnable {
 		while(true) {
 			
 			System.out.println("Sending Elevator info to scheduler");
-			
+			scheduler.put(0, this.flooNumber);
 			int floorNum = scheduler.get(0).get(1);
 			goToFloor(floorNum);
 			System.out.println("Elevator moved to the floor requesting");

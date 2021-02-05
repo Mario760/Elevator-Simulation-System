@@ -9,7 +9,7 @@ import java.util.Vector;
 public class Scheduler {
 	
 	private Vector<Integer> contents = new Vector<Integer>(5); //0th -> floor number, 1st -> instructions... 
-	private boolean empty;
+	private boolean empty = true;
 	
 	/**
 	 * This method will receive a floor from the floorSubsystem (it will wait until the elevator has verified that it is not moving)
