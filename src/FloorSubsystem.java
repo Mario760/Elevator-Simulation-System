@@ -77,6 +77,7 @@ public class FloorSubsystem implements Runnable{
 	 */
 	public void readInputFile() {
 		try {
+			int floor;
 		    LineNumberReader line = new LineNumberReader(new FileReader(filePath)); // LineNumberReader allows for getting the line number. Might be useful in a future iteration
 		    String lineText = null;
 		    while ((lineText = line.readLine()) != null) { // It will read the next line every while iteration (until it reaches the end)
@@ -91,10 +92,10 @@ public class FloorSubsystem implements Runnable{
 		        info.put("New Floor", Integer.parseInt(instructions[3])); // adding the new floor to the hashmap
 		        PressButton(); // pressing the button before telling the scheduler
 		        scheduler.put(1 ,Integer.parseInt(instructions[1])); // telling the scheduler that an elevator needs to arrive at the floor where the button was pressed
-		        int floor = scheduler.get(1).get(0); // waiting for the arrival of the elevator at a certain floor
+		        floor = scheduler.get(1).get(0); // waiting for the arrival of the elevator at a certain floor
 		        handleArrival(floor); // handling the arrival of the elevator (the person who pressed the button would enter)
 		        scheduler.put(1, Integer.parseInt(instructions[3])); // telling the elevator to go to the new floor
-		        int floor = scheduler.get(1).get(0); // waiting for the elevator to arrive at the new floor
+		        floor = scheduler.get(1).get(0); // waiting for the elevator to arrive at the new floor
 		        handleArrival(floor); // handling the arrival of the elevator at the new floor (people would be exiting and entering)
 		    }
 		    line.close(); // closing the file
