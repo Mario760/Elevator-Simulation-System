@@ -16,9 +16,9 @@ Jiawei | Author of UML & Sequence diagrams, general coding.
 
 #### Program Instructions:
 
-After pulling the project from Github, run the main class to start the program. 
+After pulling the project from Github, run the main class in Eclipse to start the program. 
 
-There is currently no UI so all output will be in the command line. 
+There is currently no UI so all output will be in the console. 
 
 
 
