@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Vector;
 /**
  * This class is the Elevator subsystem.
  * @author Peyman Tajadod
@@ -27,7 +26,7 @@ public class Elevator implements Runnable {
 		
 	}
 	/**
-	 * This method is to get the number of the elevator
+	 * This method is to get the elevator number
 	 * @return
 	 */
 	public int getElevatorNum() {
@@ -43,16 +42,25 @@ public class Elevator implements Runnable {
 	}
 	
 	/**
-	 * This method is to
+	 * This method is to toggle the enabled button of the elevator
 	 * @param btnNum
 	 */
-	public void pressButton(int btnNum) {
+	public void toggleButton(int btnNum) {
 		for(ElevatorButton btn : this.buttons) {
 			if(btn.getNumber() == btnNum) {
-				btn.setEnabledLamp(true);
+				if(!btn.getEnabledLamp()) {
+					btn.toggleLamp(true);
+				}else {
+					btn.toggleLamp(false);
+				}
 			}
 		}
 	}
+
+	/**
+	 * This method is to change the floor number where the elevator is at.
+	 * @param num
+	 */
 	
 	public void goToFloor(int num) {
 		this.flooNumber = num;
@@ -62,7 +70,11 @@ public class Elevator implements Runnable {
         } catch (InterruptedException e) {}
 	}
 	
-
+	/**
+	 * This is the implementation of the run method from interface Runnable.
+	 * This implementation is only for the purpose of Iteration 1 and it will be modified
+	 *
+	 */
 	@Override
 	public void run() {
 		
@@ -70,11 +82,13 @@ public class Elevator implements Runnable {
 			
 			System.out.println("Sending Elevator info to scheduler");
 			scheduler.put(0, this.flooNumber);
-			int floorNum = scheduler.get(0).get(1);
+			int floorNum = scheduler.get(0);
+			toggleButton(floorNum);
 			goToFloor(floorNum);
 			System.out.println("Elevator moved to the floor requesting");
 			scheduler.put(0, this.flooNumber);
-			int floorNum2 = scheduler.get(0).get(1);
+			int floorNum2 = scheduler.get(0);
+			toggleButton(floorNum2);
 			goToFloor(floorNum2);
 			System.out.println("Elevator moved to the destination floor");
 			scheduler.put(0,this.flooNumber);
@@ -88,7 +102,11 @@ public class Elevator implements Runnable {
 }
 
 
-
+/**
+ * This class is to represent the buttons of the elevator
+ * @author Peyman Tajadod
+ *
+ */
 class ElevatorButton{
 	private int number;
 	private boolean lamp;
@@ -102,8 +120,8 @@ class ElevatorButton{
 		return this.number;
 	}
 	
-	public void setEnabledLamp(boolean enable) {
-		this.lamp = enable;
+	public void toggleLamp(boolean toggle) {
+		this.lamp = toggle;
 	}
 	
 	public boolean getEnabledLamp(){
@@ -112,7 +130,11 @@ class ElevatorButton{
 	
 }
 
-
+/**
+ * Enum class to represent the state of the motor
+ * @author Peyman Tajadod
+ *
+ */
 enum MotorDirection{
 	STOPPED,
 	UP,
