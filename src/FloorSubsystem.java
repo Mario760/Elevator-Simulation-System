@@ -93,7 +93,6 @@ public class FloorSubsystem implements Runnable{
 		        }
 		        info.put("New Floor", Integer.parseInt(instructions[3])); // adding the new floor to the hashmap
 		        PressButton(); // pressing the button before telling the scheduler
-		        System.out.println("Pee pee poo poo " + instructions[1]);
 		        scheduler.put(1 ,Integer.parseInt(instructions[1])); // telling the scheduler that an elevator needs to arrive at the floor where the button was pressed
 		        floor = scheduler.get(1); // waiting for the arrival of the elevator at a certain floor
 		        handleArrival(floor); // handling the arrival of the elevator (the person who pressed the button would enter)
