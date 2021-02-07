@@ -1,8 +1,9 @@
 import java.util.ArrayList;
+
 /**
  * This class is the Elevator subsystem.
- * @author Peyman Tajadod
  *
+ * @author Peyman Tajadod
  */
 public class Elevator implements Runnable {
 	
@@ -69,7 +70,24 @@ public class Elevator implements Runnable {
             Thread.sleep(1000);
         } catch (InterruptedException e) {}
 	}
-	
+
+	/**
+	 * This method is to get current floor number.
+	 * @return flooNumber, current floor number.
+	 */
+	public int getFlooNumber() {
+		return flooNumber;
+	}
+
+
+	/**
+	 * This method is to get motor direction
+	 * @return the motor direction
+	 */
+	public MotorDirection getMotor() {
+		return motor;
+	}
+
 	/**
 	 * This is the implementation of the run method from interface Runnable.
 	 * This implementation is only for the purpose of Iteration 1 and it will be modified
