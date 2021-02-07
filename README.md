@@ -20,6 +20,16 @@ After pulling the project from Github, run the main class in Eclipse to start th
 
 There is currently no UI so all output will be in the console. 
 
+##Clasess:
 
+Elevator: represents Elevator subsystem and recieves and send info to scheduler
+
+Scheduler: represents the box following mutual exclusion concept to handle transfering data between floor and elevator
+
+Floor: represents each floor object 
+
+FloorSubystem: represents the floor subsystem to handle each floor
+
+Main: represents as a client for testing/simulating the functionality of the project
 
 
