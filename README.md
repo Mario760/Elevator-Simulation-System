@@ -32,4 +32,12 @@ FloorSubystem: represents the floor subsystem to handle each floor
 
 Main: represents as a client for testing/simulating the functionality of the project
 
+#### Testing Instructions:
+
+Test files are in the default package along with the rest of the Class files. 
+All Files ending with the word "Test" is to be ran manually (right click, Run As -> JUnit Test)
+
+NOTE: Test files will be separated into their own package in later iterations
+=======
+
 
