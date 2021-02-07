@@ -38,6 +38,5 @@ Test files are in the default package along with the rest of the Class files.
 All Files ending with the word "Test" is to be ran manually (right click, Run As -> JUnit Test)
 
 NOTE: Test files will be separated into their own package in later iterations
-=======
 
 
