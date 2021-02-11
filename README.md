@@ -20,7 +20,7 @@ After pulling the project from Github, run the main class in Eclipse to start th
 
 There is currently no UI so all output will be in the console. 
 
-##Clasess:
+#### Clasess:
 
 Elevator: represents Elevator subsystem and recieves and send info to scheduler
 
