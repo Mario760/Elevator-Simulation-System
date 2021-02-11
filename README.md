@@ -10,9 +10,9 @@ Name | Job
 ------------ | -------------
 Peyman | Manages the Github, general coding.
 Alex | Handles README and writing tasks, general coding.
-Campbell | Assists with JUNIT test design, general coding. 
-Alec | In charge of JUNIT test design, general coding.
-Jiawei | Author of UML & Sequence diagrams, general coding.
+Campbell | General coding. 
+Alec | In charge of JUNIT test design.
+Jiawei | Author of UML & Sequence diagrams, assisted with JUNIT test design.
 
 #### Program Instructions:
 
