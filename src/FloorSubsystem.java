@@ -53,10 +53,8 @@ public class FloorSubsystem implements Runnable{
 	/**
 	 * This method presses one of the floors buttons (by calling pressButton() on the floor) based on the info hashmap
 	 */
-	public void PressButton() {
-		int floor = ((int) info.get("Floor")) - 1; // array list index starts at 0 but floors start at 1
-		FloorDirection direction = (FloorDirection) info.get("Button");
-		floors.get(floor).pressButton(direction);
+	public void PressButton(int floor, FloorDirection direction) {
+		floors.get(floor - 1).pressButton(direction);
 	}
 	
 	/**
@@ -70,7 +68,7 @@ public class FloorSubsystem implements Runnable{
 			System.out.println("Waiting for people to enter/leave");
 			Thread.sleep(9175);
 		} catch (InterruptedException e) {}
-		floors.get(floor -1).handleDeparture();
+		floors.get(floor - 1).handleDeparture();
 	}
 	
 	/**
@@ -84,21 +82,13 @@ public class FloorSubsystem implements Runnable{
 		    String lineText = null;
 		    while ((lineText = line.readLine()) != null) { // It will read the next line every while iteration (until it reaches the end)
 		        String[] instructions = lineText.split(" "); // splitting the line by whitespace due to the format of the input file
-		        info.put("Time", instructions[0]); // adding the time string to the hashmap (will be useful in later iterations)
-		        info.put("Floor", Integer.parseInt(instructions[1])); // adding the floor where the button was pushed into the hashmap
-		        if (instructions[2] == "Up") { // getting the direction and making it a FloorDirection object
-		        	info.put("Button", FloorDirection.UP);
-		        } else {
-		        	info.put("Button", FloorDirection.DOWN);
+		        FloorDirection direction;
+		        if (instructions[2] == "Up") {
+		        	direction = FloorDirection.UP;
 		        }
-		        info.put("New Floor", Integer.parseInt(instructions[3])); // adding the new floor to the hashmap
-		        PressButton(); // pressing the button before telling the scheduler
-		        scheduler.put(1 ,Integer.parseInt(instructions[1])); // telling the scheduler that an elevator needs to arrive at the floor where the button was pressed
-		        floor = scheduler.get(1); // waiting for the arrival of the elevator at a certain floor
-		        handleArrival(floor); // handling the arrival of the elevator (the person who pressed the button would enter)
-		        scheduler.put(1, Integer.parseInt(instructions[3])); // telling the elevator to go to the new floor
-		        floor = scheduler.get(1); // waiting for the elevator to arrive at the new floor
-		        handleArrival(floor); // handling the arrival of the elevator at the new floor (people would be exiting and entering)
+		        if (instructions[2] == "Down") {
+		        	direction = FloorDirection.DOWN;
+		        }
 		    }
 		    line.close(); // closing the file
 		} catch (IOException e) { // safe coding practices only
