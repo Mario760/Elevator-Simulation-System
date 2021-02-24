@@ -31,7 +31,15 @@ public class Instruction {
 	 * @return time but represented in seconds
 	 */
 	public double getTimeInSeconds() {
-		return 0;
+		String[] times = time.split(":");
+		if (times.length !=  4) {
+			System.out.println("Invalid Time\n");
+			return -1;
+		}
+		int hours = Integer.parseInt(times[0]);
+		int mins = Integer.parseInt(times[1]);
+		int seconds = Integer.parseInt(times[2]);
+		return (hours * 3600) + (mins * 60) + seconds;
 	}
 	
 	/**
