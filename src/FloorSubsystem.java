@@ -102,7 +102,7 @@ public class FloorSubsystem implements Runnable{
 	public void run() {
 		readInputFile();
 		while(!scheduler.getDone()) {
-			byte[] task = scheduler.getNextTask();
+			byte[] task = scheduler.getNextTask(1);
 			int floor = (int) task[0];
 			switch (task[1]) {
 			case (byte) 0: // elevator has arrived
