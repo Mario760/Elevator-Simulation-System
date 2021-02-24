@@ -24,7 +24,6 @@ public class FloorSubsystem implements Runnable{
 	
 	/**
 	 * The constructor for the FloorSubSystem
-	 * It creates a list of floors, the info hashmap and sets its instance variables
 	 * @param numberOfFloors the number of floors to create
 	 * @param scheduler the scheduler
 	 * @param filePath the file path containing the input file
@@ -72,7 +71,7 @@ public class FloorSubsystem implements Runnable{
 	}
 	
 	/**
-	 * This method is called by the run method and is used to read the input file so that it can send and receive relevant info to and from the scheduler
+	 * This method is called by the run method and is used to read the input file so that it can send relevant info to the scheduler
 	 */
 	public void readInputFile() {
 		try {
@@ -82,13 +81,14 @@ public class FloorSubsystem implements Runnable{
 		    String lineText = null;
 		    while ((lineText = line.readLine()) != null) { // It will read the next line every while iteration (until it reaches the end)
 		        String[] instructions = lineText.split(" "); // splitting the line by whitespace due to the format of the input file
-		        FloorDirection direction;
+		        FloorDirection direction = FloorDirection.DOWN;
 		        if (instructions[2] == "Up") {
 		        	direction = FloorDirection.UP;
 		        }
 		        if (instructions[2] == "Down") {
 		        	direction = FloorDirection.DOWN;
 		        }
+		        scheduler.receiveInstruction(new Instruction(instructions[0], Integer.parseInt(instructions[1]), direction, Integer.parseInt(instructions[3])));
 		    }
 		    line.close(); // closing the file
 		} catch (IOException e) { // safe coding practices only
@@ -104,6 +104,7 @@ public class FloorSubsystem implements Runnable{
 	@Override
 	public void run() {
 		readInputFile();
+		
 	}
 	
 }
