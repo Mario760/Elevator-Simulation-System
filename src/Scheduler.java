@@ -47,6 +47,17 @@ public class Scheduler {
 			return getNextFloorTask();
 		} else {
 			//Elevator code goes here!
+			//when the elevator arrives at a floor change floorTask to FloorTask.ARRIVAL
+			//when the elevator sends its a state of not moving it should peek the queue for where to go next
+			/**
+			 * When the elevator arrives at a floor, the scheduler should pop the queue and save it to a Instruction variable and compare it to the next instruction (peek).
+			 * If the next instruction is within (9 + time to travel) seconds of the first instruction and they are both going in the same direction, 
+			 * check if the floor is between the elevator's current floor and its destination.
+			 * If so, the elevator will need to stop early and repeat this process
+			 */
+			
+			// I'd suggest a list of floors the elevator needs to visit either on scheduler or elevator because the elevator does not care why its going to the floor just the floor its going too
+			
 		}
 	}
 	
@@ -65,7 +76,7 @@ public class Scheduler {
 		}
 		
 		if (floorTask == FloorTask.ARRIVAL) {
-			floorTask = FloorTask.NOTHING;
+			floorTask = FloorTask.DEPARTURE;
 			byte[] task = {(byte) currentElevatorFloor, (byte) 0}; // 0 means arrival
 			notifyAll();
 			return task;
