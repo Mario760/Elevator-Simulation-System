@@ -75,7 +75,6 @@ public class FloorSubsystem implements Runnable{
 	 */
 	public void readInputFile() {
 		try {
-			int floor;
 			System.out.println("Just got the input file");
 		    LineNumberReader line = new LineNumberReader(new FileReader(filePath)); // LineNumberReader allows for getting the line number. Might be useful in a future iteration
 		    String lineText = null;
@@ -94,7 +93,6 @@ public class FloorSubsystem implements Runnable{
 		} catch (IOException e) { // safe coding practices only
 		    System.out.println(e);
 		}
-		
 	}
 	
 	/**
@@ -104,6 +102,10 @@ public class FloorSubsystem implements Runnable{
 	@Override
 	public void run() {
 		readInputFile();
+		while(!scheduler.getDone()) {
+			//
+		}
+		
 		
 	}
 	

@@ -12,6 +12,7 @@ public class Scheduler {
 	private int elevatorData;
 	private boolean elevatorEmpty = true;
 	private boolean floorEmpty = true;
+	private boolean done = false;
 	
 	private Queue<Instruction> instructions;
 	
@@ -31,6 +32,9 @@ public class Scheduler {
 		instructions.add(instruction);
 	}
 	
+	public boolean getDone() {
+		return done;
+	}
 	
 	
 	
