@@ -50,6 +50,10 @@ public class Scheduler {
 		}
 	}
 	
+	/**
+	 * This method determines the next floor task by using the floorTask enum
+	 * @return a byte[] containing the next instruction for the floor
+	 */
 	public synchronized byte[] getNextFloorTask() {
 		while(floorTask == FloorTask.NOTHING) {
 			try {
@@ -62,20 +66,24 @@ public class Scheduler {
 		
 		if (floorTask == FloorTask.ARRIVAL) {
 			floorTask = FloorTask.NOTHING;
-			byte[] task = {(byte) currentElevatorFloor, (byte) 0};
+			byte[] task = {(byte) currentElevatorFloor, (byte) 0}; // 0 means arrival
+			notifyAll();
 			return task;
 		} else if (floorTask == FloorTask.DEPARTURE) {
 			floorTask = FloorTask.NOTHING;
-			byte[] task = {(byte) currentElevatorFloor, (byte) 1};
+			byte[] task = {(byte) currentElevatorFloor, (byte) 1}; // 1 means departure
+			notifyAll();
 			return task;
-		} else { // Button
+		} else { // Button press
 			floorTask = FloorTask.NOTHING;
 			Instruction info = instructions.peek();
 			if (info.getFloorButton() == FloorDirection.UP) {
-				byte[] task = {(byte) info.getFloor(), (byte) 2};
+				byte[] task = {(byte) info.getFloor(), (byte) 2}; // 2 means UP
+				notifyAll();
 				return task;
 			} else {
-				byte[] task = {(byte) info.getFloor(), (byte) 3};
+				byte[] task = {(byte) info.getFloor(), (byte) 3}; // 3 means DOWN
+				notifyAll();
 				return task;
 			}
 		}
