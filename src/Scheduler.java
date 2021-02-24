@@ -1,3 +1,4 @@
+import java.util.*;
 
 /**
  * This is the scheduler class that follows the mutual exclusion and condition synchronization
@@ -6,11 +7,32 @@
  */
 
 public class Scheduler {
-	 
+	
 	private int floorData;
 	private int elevatorData;
 	private boolean elevatorEmpty = true;
 	private boolean floorEmpty = true;
+	
+	private Queue<Instruction> instructions;
+	
+	/**
+	 * Constructor
+	 * Used to set up the instructions queue
+	 */
+	public Scheduler() {
+		instructions = new LinkedList<Instruction>();
+	}
+	
+	/**
+	 * This method will be called by the FloorSubsystem to populate the instructions list
+	 * @param instruction an Instruction
+	 */
+	public void receiveInstruction(Instruction instruction) {
+		instructions.add(instruction);
+	}
+	
+	
+	
 	
 	/**
 	 * This method will receive a floor from the floorSubsystem 
