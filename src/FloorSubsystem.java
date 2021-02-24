@@ -63,10 +63,9 @@ public class FloorSubsystem implements Runnable{
 	 */
 	public void handleArrival(int floor) {
 		floors.get(floor - 1).handleArrival();
-		try {
-			System.out.println("Waiting for people to enter/leave");
-			Thread.sleep(9175);
-		} catch (InterruptedException e) {}
+	}
+	
+	public void handleDeparture(int floor) {
 		floors.get(floor - 1).handleDeparture();
 	}
 	
@@ -103,7 +102,24 @@ public class FloorSubsystem implements Runnable{
 	public void run() {
 		readInputFile();
 		while(!scheduler.getDone()) {
-			//
+			byte[] task = scheduler.getNextTask();
+			int floor = (int) task[0];
+			switch (task[1]) {
+			case (byte) 0: // elevator has arrived
+				this.handleArrival(floor);
+				break;
+			case (byte) 1: // elevator is leaving 
+				this.handleDeparture(floor);
+				break;
+			case (byte) 2: // up button press
+				this.PressButton(floor, FloorDirection.UP);
+				break;
+			case (byte) 3: // down button press
+				this.PressButton(floor, FloorDirection.DOWN);
+				break;
+			}
+					
+				
 		}
 		
 		
