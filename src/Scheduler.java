@@ -10,10 +10,11 @@ public class Scheduler {
 	
 	private int floorData;
 	private int elevatorData;
+	private int currentElevatorFloor;
 	private boolean elevatorEmpty = true;
 	private boolean floorEmpty = true;
 	private boolean done = false;
-	
+	private FloorTask floorTask = FloorTask.NOTHING;
 	private Queue<Instruction> instructions;
 	
 	/**
@@ -34,6 +35,51 @@ public class Scheduler {
 	
 	public boolean getDone() {
 		return done;
+	}
+	
+	/**
+	 * This method figures out what is asking for the next task and returns the appropriate method
+	 * @param id 0 for elevator and 1 for floor
+	 * @return a byte[] array to be parsed and translated
+	 */
+	public synchronized byte[] getNextTask(int id) {
+		if (id == 1) {
+			return getNextFloorTask();
+		} else {
+			//Elevator code goes here!
+		}
+	}
+	
+	public synchronized byte[] getNextFloorTask() {
+		while(floorTask == FloorTask.NOTHING) {
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				byte[] failure = {(byte) 0, (byte) 0};
+				return failure;
+			}
+		}
+		
+		if (floorTask == FloorTask.ARRIVAL) {
+			floorTask = FloorTask.NOTHING;
+			byte[] task = {(byte) currentElevatorFloor, (byte) 0};
+			return task;
+		} else if (floorTask == FloorTask.DEPARTURE) {
+			floorTask = FloorTask.NOTHING;
+			byte[] task = {(byte) currentElevatorFloor, (byte) 1};
+			return task;
+		} else { // Button
+			floorTask = FloorTask.NOTHING;
+			Instruction info = instructions.peek();
+			if (info.getFloorButton() == FloorDirection.UP) {
+				byte[] task = {(byte) info.getFloor(), (byte) 2};
+				return task;
+			} else {
+				byte[] task = {(byte) info.getFloor(), (byte) 3};
+				return task;
+			}
+		}
+		
 	}
 	
 	
@@ -103,7 +149,6 @@ public class Scheduler {
 			notifyAll();
 			return floorDataTemp;
 
-			
 		} else { 
 			while(elevatorEmpty) {
 				try {
@@ -120,8 +165,6 @@ public class Scheduler {
 			return elevatorData;
 
 		}
-			
-		
-	
+
 	}
 }
