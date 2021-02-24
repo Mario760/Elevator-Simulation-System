@@ -24,7 +24,6 @@ public class FloorSubsystem implements Runnable{
 	
 	/**
 	 * The constructor for the FloorSubSystem
-	 * It creates a list of floors, the info hashmap and sets its instance variables
 	 * @param numberOfFloors the number of floors to create
 	 * @param scheduler the scheduler
 	 * @param filePath the file path containing the input file
@@ -53,10 +52,8 @@ public class FloorSubsystem implements Runnable{
 	/**
 	 * This method presses one of the floors buttons (by calling pressButton() on the floor) based on the info hashmap
 	 */
-	public void PressButton() {
-		int floor = ((int) info.get("Floor")) - 1; // array list index starts at 0 but floors start at 1
-		FloorDirection direction = (FloorDirection) info.get("Button");
-		floors.get(floor).pressButton(direction);
+	public void PressButton(int floor, FloorDirection direction) {
+		floors.get(floor - 1).pressButton(direction);
 	}
 	
 	/**
@@ -66,45 +63,35 @@ public class FloorSubsystem implements Runnable{
 	 */
 	public void handleArrival(int floor) {
 		floors.get(floor - 1).handleArrival();
-		try {
-			System.out.println("Waiting for people to enter/leave");
-			Thread.sleep(9175);
-		} catch (InterruptedException e) {}
-		floors.get(floor -1).handleDeparture();
+	}
+	
+	public void handleDeparture(int floor) {
+		floors.get(floor - 1).handleDeparture();
 	}
 	
 	/**
-	 * This method is called by the run method and is used to read the input file so that it can send and receive relevant info to and from the scheduler
+	 * This method is called by the run method and is used to read the input file so that it can send relevant info to the scheduler
 	 */
 	public void readInputFile() {
 		try {
-			int floor;
 			System.out.println("Just got the input file");
 		    LineNumberReader line = new LineNumberReader(new FileReader(filePath)); // LineNumberReader allows for getting the line number. Might be useful in a future iteration
 		    String lineText = null;
 		    while ((lineText = line.readLine()) != null) { // It will read the next line every while iteration (until it reaches the end)
 		        String[] instructions = lineText.split(" "); // splitting the line by whitespace due to the format of the input file
-		        info.put("Time", instructions[0]); // adding the time string to the hashmap (will be useful in later iterations)
-		        info.put("Floor", Integer.parseInt(instructions[1])); // adding the floor where the button was pushed into the hashmap
-		        if (instructions[2] == "Up") { // getting the direction and making it a FloorDirection object
-		        	info.put("Button", FloorDirection.UP);
-		        } else {
-		        	info.put("Button", FloorDirection.DOWN);
+		        FloorDirection direction = FloorDirection.DOWN;
+		        if (instructions[2] == "Up") {
+		        	direction = FloorDirection.UP;
 		        }
-		        info.put("New Floor", Integer.parseInt(instructions[3])); // adding the new floor to the hashmap
-		        PressButton(); // pressing the button before telling the scheduler
-		        scheduler.put(1 ,Integer.parseInt(instructions[1])); // telling the scheduler that an elevator needs to arrive at the floor where the button was pressed
-		        floor = scheduler.get(1); // waiting for the arrival of the elevator at a certain floor
-		        handleArrival(floor); // handling the arrival of the elevator (the person who pressed the button would enter)
-		        scheduler.put(1, Integer.parseInt(instructions[3])); // telling the elevator to go to the new floor
-		        floor = scheduler.get(1); // waiting for the elevator to arrive at the new floor
-		        handleArrival(floor); // handling the arrival of the elevator at the new floor (people would be exiting and entering)
+		        if (instructions[2] == "Down") {
+		        	direction = FloorDirection.DOWN;
+		        }
+		        scheduler.receiveInstruction(new Instruction(instructions[0], Integer.parseInt(instructions[1]), direction, Integer.parseInt(instructions[3])));
 		    }
 		    line.close(); // closing the file
 		} catch (IOException e) { // safe coding practices only
 		    System.out.println(e);
 		}
-		
 	}
 	
 	/**
@@ -114,6 +101,31 @@ public class FloorSubsystem implements Runnable{
 	@Override
 	public void run() {
 		readInputFile();
+		while(!scheduler.getDone()) {
+			byte[] task = scheduler.getNextTask(1);
+			if (task[0] == (byte) 0 && task[1] == (byte) 0) { // making sure the result is valid
+				continue; 
+			}
+			int floor = (int) task[0];
+			switch (task[1]) {
+			case (byte) 0: // elevator has arrived
+				this.handleArrival(floor);
+				break;
+			case (byte) 1: // elevator is leaving 
+				this.handleDeparture(floor);
+				break;
+			case (byte) 2: // up button press
+				this.PressButton(floor, FloorDirection.UP);
+				break;
+			case (byte) 3: // down button press
+				this.PressButton(floor, FloorDirection.DOWN);
+				break;
+			}
+					
+				
+		}
+		
+		
 	}
 	
 }

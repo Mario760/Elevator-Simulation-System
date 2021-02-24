@@ -1,3 +1,4 @@
+import java.util.*;
 
 /**
  * This is the scheduler class that follows the mutual exclusion and condition synchronization
@@ -6,11 +7,90 @@
  */
 
 public class Scheduler {
-	 
+	
 	private int floorData;
 	private int elevatorData;
+	private int currentElevatorFloor;
 	private boolean elevatorEmpty = true;
 	private boolean floorEmpty = true;
+	private boolean done = false;
+	private FloorTask floorTask = FloorTask.NOTHING;
+	private Queue<Instruction> instructions;
+	
+	/**
+	 * Constructor
+	 * Used to set up the instructions queue
+	 */
+	public Scheduler() {
+		instructions = new LinkedList<Instruction>();
+	}
+	
+	/**
+	 * This method will be called by the FloorSubsystem to populate the instructions list
+	 * @param instruction an Instruction
+	 */
+	public void receiveInstruction(Instruction instruction) {
+		instructions.add(instruction);
+	}
+	
+	public boolean getDone() {
+		return done;
+	}
+	
+	/**
+	 * This method figures out what is asking for the next task and returns the appropriate method
+	 * @param id 0 for elevator and 1 for floor
+	 * @return a byte[] array to be parsed and translated
+	 */
+	public synchronized byte[] getNextTask(int id) {
+		if (id == 1) {
+			return getNextFloorTask();
+		} else {
+			//Elevator code goes here!
+		}
+	}
+	
+	/**
+	 * This method determines the next floor task by using the floorTask enum
+	 * @return a byte[] containing the next instruction for the floor
+	 */
+	public synchronized byte[] getNextFloorTask() {
+		while(floorTask == FloorTask.NOTHING) {
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				byte[] failure = {(byte) 0, (byte) 0};
+				return failure;
+			}
+		}
+		
+		if (floorTask == FloorTask.ARRIVAL) {
+			floorTask = FloorTask.NOTHING;
+			byte[] task = {(byte) currentElevatorFloor, (byte) 0}; // 0 means arrival
+			notifyAll();
+			return task;
+		} else if (floorTask == FloorTask.DEPARTURE) {
+			floorTask = FloorTask.NOTHING;
+			byte[] task = {(byte) currentElevatorFloor, (byte) 1}; // 1 means departure
+			notifyAll();
+			return task;
+		} else { // Button press
+			floorTask = FloorTask.NOTHING;
+			Instruction info = instructions.peek();
+			if (info.getFloorButton() == FloorDirection.UP) {
+				byte[] task = {(byte) info.getFloor(), (byte) 2}; // 2 means UP
+				notifyAll();
+				return task;
+			} else {
+				byte[] task = {(byte) info.getFloor(), (byte) 3}; // 3 means DOWN
+				notifyAll();
+				return task;
+			}
+		}
+		
+	}
+	
+	
 	
 	/**
 	 * This method will receive a floor from the floorSubsystem 
@@ -77,7 +157,6 @@ public class Scheduler {
 			notifyAll();
 			return floorDataTemp;
 
-			
 		} else { 
 			while(elevatorEmpty) {
 				try {
@@ -94,8 +173,6 @@ public class Scheduler {
 			return elevatorData;
 
 		}
-			
-		
-	
+
 	}
 }
