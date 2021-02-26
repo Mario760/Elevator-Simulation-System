@@ -81,17 +81,17 @@ public class FloorSubsystem implements Runnable{
 		    while ((lineText = line.readLine()) != null) { // It will read the next line every while iteration (until it reaches the end)
 		        String[] instructions = lineText.split(" "); // splitting the line by whitespace due to the format of the input file
 		        FloorDirection direction = FloorDirection.DOWN;
-		        if (instructions[2] == "Up") {
+		        if (instructions[2] == "Up") { // up button press
 		        	direction = FloorDirection.UP;
 		        	this.pressButton(Integer.parseInt(instructions[1]), direction);
 		        }
-		        if (instructions[2] == "Down") {
+		        if (instructions[2] == "Down") { // down button press
 		        	direction = FloorDirection.DOWN;
 		        	this.pressButton(Integer.parseInt(instructions[1]), direction);
 		        }
-		        scheduler.receiveInstruction(new Instruction(instructions[0], Integer.parseInt(instructions[1]), direction, Integer.parseInt(instructions[3])));
-		        this.handleTask(scheduler.getNextTask(1));
-		        this.handleTask(scheduler.getNextTask(1));
+		        scheduler.receiveInstruction(new Instruction(instructions[0], Integer.parseInt(instructions[1]), direction, Integer.parseInt(instructions[3]))); // sending instruction to scheduler
+		        this.handleTask(scheduler.getNextTask(1)); // arrival task
+		        this.handleTask(scheduler.getNextTask(1)); // departure task
 		    }
 		    line.close(); // closing the file
 		} catch (IOException e) { // safe coding practices only
