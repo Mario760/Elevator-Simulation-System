@@ -52,7 +52,7 @@ public class FloorSubsystem implements Runnable{
 	/**
 	 * This method presses one of the floors buttons (by calling pressButton() on the floor) based on the info hashmap
 	 */
-	public void PressButton(int floor, FloorDirection direction) {
+	public void pressButton(int floor, FloorDirection direction) {
 		floors.get(floor - 1).pressButton(direction);
 	}
 	
@@ -71,8 +71,9 @@ public class FloorSubsystem implements Runnable{
 	
 	/**
 	 * This method is called by the run method and is used to read the input file so that it can send relevant info to the scheduler
+	 * It presses the required floor button (helper function) and receives the next floor instruction as well (which is dealt with by a helper function)
 	 */
-	public void readInputFile() {
+	private void readInputFile() {
 		try {
 			System.out.println("Just got the input file");
 		    LineNumberReader line = new LineNumberReader(new FileReader(filePath)); // LineNumberReader allows for getting the line number. Might be useful in a future iteration
@@ -82,11 +83,14 @@ public class FloorSubsystem implements Runnable{
 		        FloorDirection direction = FloorDirection.DOWN;
 		        if (instructions[2] == "Up") {
 		        	direction = FloorDirection.UP;
+		        	this.pressButton(Integer.parseInt(instructions[1]), direction);
 		        }
 		        if (instructions[2] == "Down") {
 		        	direction = FloorDirection.DOWN;
+		        	this.pressButton(Integer.parseInt(instructions[1]), direction);
 		        }
 		        scheduler.receiveInstruction(new Instruction(instructions[0], Integer.parseInt(instructions[1]), direction, Integer.parseInt(instructions[3])));
+		        this.handleTask(scheduler.getNextTask(1));
 		    }
 		    line.close(); // closing the file
 		} catch (IOException e) { // safe coding practices only
@@ -95,35 +99,39 @@ public class FloorSubsystem implements Runnable{
 	}
 	
 	/**
+	 * Handles the byte code used for tasks
+	 * Also calls the appropriate 
+	 * @param task the byte[] for the current task. byte[0] = floor #, byte[1] = what is actually happening
+	 * Currently for byte[1]
+	 * 	0 = arrival
+	 * 	1 = departure
+	 * @return True of False depending if the task was valid
+	 */
+	private boolean handleTask(byte[] task) {
+		if (task[0] == (byte) 0 && task[1] == (byte) 0) { // making sure the result is valid
+			System.out.println("Invalid Task");
+			return false;
+		}
+		int floor = (int) task[0];
+		switch (task[1]) {
+		case (byte) 0: // elevator has arrived
+			this.handleArrival(floor);
+			break;
+		case (byte) 1: // elevator is leaving 
+			this.handleDeparture(floor);
+			break;
+		}
+		return true;
+		
+	}
+
+	/**
 	 * This is the method that was implemented from the runnable interface
 	 * currently it only calls readInputFile
 	 */
 	@Override
 	public void run() {
 		readInputFile();
-		while(!scheduler.getDone()) {
-			byte[] task = scheduler.getNextTask(1);
-			if (task[0] == (byte) 0 && task[1] == (byte) 0) { // making sure the result is valid
-				continue; 
-			}
-			int floor = (int) task[0];
-			switch (task[1]) {
-			case (byte) 0: // elevator has arrived
-				this.handleArrival(floor);
-				break;
-			case (byte) 1: // elevator is leaving 
-				this.handleDeparture(floor);
-				break;
-			case (byte) 2: // up button press
-				this.PressButton(floor, FloorDirection.UP);
-				break;
-			case (byte) 3: // down button press
-				this.PressButton(floor, FloorDirection.DOWN);
-				break;
-			}
-					
-				
-		}
 		
 		
 	}
