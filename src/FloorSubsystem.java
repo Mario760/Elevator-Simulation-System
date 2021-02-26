@@ -91,6 +91,7 @@ public class FloorSubsystem implements Runnable{
 		        }
 		        scheduler.receiveInstruction(new Instruction(instructions[0], Integer.parseInt(instructions[1]), direction, Integer.parseInt(instructions[3])));
 		        this.handleTask(scheduler.getNextTask(1));
+		        this.handleTask(scheduler.getNextTask(1));
 		    }
 		    line.close(); // closing the file
 		} catch (IOException e) { // safe coding practices only
@@ -101,7 +102,7 @@ public class FloorSubsystem implements Runnable{
 	/**
 	 * Handles the byte code used for tasks
 	 * Also calls the appropriate 
-	 * @param task the byte[] for the current task. byte[0] = floor #, byte[1] = what is actually happening
+	 * @param task the byte[] for the current task byte[0] = floor #, byte[1] = what is actually happening
 	 * Currently for byte[1]
 	 * 	0 = arrival
 	 * 	1 = departure
