@@ -7,6 +7,7 @@ public class Main {
 
 	
 	public static void main(String[] args) {
+		
 		String filePath = System.getProperty("user.dir") + "\\src\\input.txt";
 		System.out.println(filePath);
 		Thread elevator, floorSubsystem;
