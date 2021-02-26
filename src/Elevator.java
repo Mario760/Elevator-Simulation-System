@@ -6,52 +6,56 @@ import java.util.ArrayList;
  * @author Peyman Tajadod
  */
 public class Elevator implements Runnable {
-	
+
 	private Scheduler scheduler;
 	private int elevatorNum;
 	private int flooNumber; // the floor that the elevator is on
-	private ArrayList<ElevatorButton> buttons; //number of buttons/floors in the system
+	private ArrayList<ElevatorButton> buttons; // number of buttons/floors in the system
 	private MotorDirection motor;
 	private boolean door;
-	
+
 	public Elevator(Scheduler scheduler, int elevatorNum, int buttonsNum) {
 		this.elevatorNum = elevatorNum;
 		this.flooNumber = 1;
-		this.buttons = new ArrayList<> ();
-		for(int i=1; i <= buttonsNum; i++ ) {
-			buttons.add(new ElevatorButton(i, false));			
+		this.buttons = new ArrayList<>();
+		for (int i = 1; i <= buttonsNum; i++) {
+			buttons.add(new ElevatorButton(i, false));
 		}
 		this.motor = MotorDirection.STOPPED;
 		this.door = false;
 		this.scheduler = scheduler;
-		
+
 	}
+
 	/**
 	 * This method is to get the elevator number
+	 * 
 	 * @return
 	 */
 	public int getElevatorNum() {
 		return this.elevatorNum;
 	}
-	
+
 	/**
 	 * This method is to change the direction of the elevator or make it stop
+	 * 
 	 * @param dir
 	 */
 	public void move(MotorDirection dir) {
 		this.motor = dir;
 	}
-	
+
 	/**
 	 * This method is to toggle the enabled button of the elevator
+	 * 
 	 * @param btnNum
 	 */
 	public void toggleButton(int btnNum) {
-		for(ElevatorButton btn : this.buttons) {
-			if(btn.getNumber() == btnNum) {
-				if(!btn.getEnabledLamp()) {
+		for (ElevatorButton btn : this.buttons) {
+			if (btn.getNumber() == btnNum) {
+				if (!btn.getEnabledLamp()) {
 					btn.toggleLamp(true);
-				}else {
+				} else {
 					btn.toggleLamp(false);
 				}
 			}
@@ -59,67 +63,82 @@ public class Elevator implements Runnable {
 	}
 
 	/**
-	 * This method is to change the floor number where the elevator is at.
-	 * @param num
+	 * This method is to change the motor direction and go to the destination floor
+	 * 
+	 * @param floorNum, direction 
 	 */
-	
+
 	public void goToFloor(byte floorNum, byte direction) {
-		//close doors
-		
+		// close doors
+
 		if (direction == (byte) 1) {
 			move(MotorDirection.UP);
-			try {
-				//calculate time to spend each elevator
-				// assuming it takes 1 second to travel between each floor
-				int floorsToTravel = floorNum - this.flooNumber;
-				System.out.println("Elevator moving up to floor " + floorNum + "...");
-				Thread.sleep(floorsToTravel * 1000);
-			} catch (InterruptedException e) {
+			// assuming it takes 3 second to travel between each floor
+			int floorsToTravel = floorNum - this.flooNumber;
+			System.out.println("Elevator moving UP to floor " + floorNum + "... takes 3 seonds each floor...");
+			for (int i = 1; i <= floorsToTravel; i++) {
+				try {
+					System.out.println(".");
+					System.out.println(this.flooNumber + i);
+					Thread.sleep(3000);
+				} catch (InterruptedException e) {
+				}
+
 			}
+
 		} else if (direction == (byte) 2) {
 			move(MotorDirection.DOWN);
-			try {
-				int floorsToTravel = this.flooNumber - floorNum;
-				System.out.println("Elevator moving down to floor " + floorNum + "...");
-				Thread.sleep(floorsToTravel * 1000);
-			} catch (InterruptedException e) {
+			int floorsToTravel = this.flooNumber - floorNum;
+			System.out.println("Elevator moving DOWN to floor " + floorNum + "... takes 3 seonds each floor.....");
+			for (int i = 1; i <= floorsToTravel; i++) {
+				try {
+					System.out.println(".");
+					System.out.println(this.flooNumber + i);
+					Thread.sleep(3000);
+				} catch (InterruptedException e) {
+				}
+
 			}
+
 		}
 		move(MotorDirection.STOPPED);
 		this.flooNumber = (int) floorNum;
+		int[] data = new int[2];
+		data[0] = this.flooNumber;
+		data[1] = 0;
 
-		//open door
-		door = true;
+		scheduler.putElevatorData(data);
+
+		// open door
+		this.door = true;
 		System.out.println("Elevator arrived");
-		System.out.println("Opening doors");
-		
+		System.out.println("Opening doors... takes 9 secodns");
+
 		scheduler.reachedDepartureFloor(FloorTask.ARRIVAL);
-		//wait 9 seconds 
+		// wait 9 seconds
 		try {
 			Thread.sleep(9000);
 		} catch (InterruptedException e) {
 		}
 		System.out.println("Closing doors");
-		door = false;
-		//close doors
-		//departure
-		System.out.println("Elevator departured");
+		this.door = false;
 		scheduler.reachedDepartureFloor(FloorTask.DEPARTURE);
-
+		scheduler.getElevatorData();
 
 	}
 
 	/**
 	 * This method is to get current floor number.
+	 * 
 	 * @return flooNumber, current floor number.
 	 */
 	public int getFlooNumber() {
 		return flooNumber;
 	}
 
-
 	/**
 	 * This method is to get motor direction
+	 * 
 	 * @return the motor direction
 	 */
 	public MotorDirection getMotor() {
@@ -127,44 +146,42 @@ public class Elevator implements Runnable {
 	}
 
 	/**
-	 * This is the implementation of the run method from interface Runnable.
-	 * This implementation is only for the purpose of Iteration 1 and it will be modified
+	 * This is the implementation of the run method from interface Runnable. This
+	 * implementation is only for the purpose of Iteration 1 and it will be modified
 	 *
 	 */
 	@Override
 	public void run() {
-		
-		while(true) {
-			
-			System.out.println("Sending Elevator data to scheduler " + this.flooNumber + " " + this.motor);
-			int[] data= {};
+
+		while (true) {
+
+			System.out.println("Sending Elevator data to scheduler " + this.flooNumber);
+			int[] data = new int[2];
 			data[0] = this.flooNumber;
-			if(this.motor == MotorDirection.STOPPED) {
+			if (this.motor == MotorDirection.STOPPED) {
 				data[1] = 0;
-			}else if(this.motor == MotorDirection.UP) {
+			} else if (this.motor == MotorDirection.UP) {
 				data[1] = 1;
-			}else {
+			} else {
 				data[1] = 2;
 			}
 			scheduler.putElevatorData(data);
 			byte task[] = scheduler.getNextTask(0);
-			goToFloor(task[0],task[1]);
-			
-		}
-		
-		
-	}
-	
-		
-}
+			goToFloor(task[0], task[1]);
 
+		}
+
+	}
+
+}
 
 /**
  * This class is to represent the buttons of the elevator
+ * 
  * @author Peyman Tajadod
  *
  */
-class ElevatorButton{
+class ElevatorButton {
 	private int number;
 	private boolean lamp;
 
@@ -172,28 +189,27 @@ class ElevatorButton{
 		this.number = number;
 		this.lamp = enabledLamp;
 	}
-	
+
 	public int getNumber() {
 		return this.number;
 	}
-	
+
 	public void toggleLamp(boolean toggle) {
 		this.lamp = toggle;
 	}
-	
-	public boolean getEnabledLamp(){
+
+	public boolean getEnabledLamp() {
 		return this.lamp;
 	}
-	
+
 }
 
 /**
  * Enum class to represent the state of the motor
+ * 
  * @author Peyman Tajadod
  *
  */
-enum MotorDirection{
-	STOPPED,
-	UP,
-	DOWN
+enum MotorDirection {
+	STOPPED, UP, DOWN
 }

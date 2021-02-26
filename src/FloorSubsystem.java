@@ -92,6 +92,8 @@ public class FloorSubsystem implements Runnable{
 		        scheduler.receiveInstruction(new Instruction(instructions[0], Integer.parseInt(instructions[1]), direction, Integer.parseInt(instructions[3]))); // sending instruction to scheduler
 		        this.handleTask(scheduler.getNextTask(1)); // arrival task
 		        this.handleTask(scheduler.getNextTask(1)); // departure task
+		        this.handleTask(scheduler.getNextTask(1)); // arrival task
+		        this.handleTask(scheduler.getNextTask(1)); // departure task
 		    }
 		    line.close(); // closing the file
 		} catch (IOException e) { // safe coding practices only
@@ -114,6 +116,7 @@ public class FloorSubsystem implements Runnable{
 			return false;
 		}
 		int floor = (int) task[0];
+//		System.out.println("floor number recieved from elevator: " + floor);
 		switch (task[1]) {
 		case (byte) 0: // elevator has arrived
 			this.handleArrival(floor);

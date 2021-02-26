@@ -8,18 +8,12 @@ import java.util.*;
 
 public class Scheduler {
 	
-	private int floorData;
-	private MotorDirection elevatorState = MotorDirection.STOPPED;
-	private int currentElevatorFloor = 0;
-	private boolean elevatorArrived = false;
 	private int elevatorData[];
-	private boolean elevatorEmpty;
-//	private boolean elevatorStateEmpty = true;
-//	private boolean elevatorFloorEmpty = true;
-	private boolean floorEmpty = true;
+	private boolean elevatorEmpty = true;
 	private FloorTask floorTask = FloorTask.NOTHING;
 	private Instruction instruction;
-	private boolean instructionEmpty = false;
+	private boolean instructionEmpty = true;
+	private boolean firstTask = false;
 	
 	
 	/**
@@ -51,42 +45,70 @@ public class Scheduler {
 		if (id == 1) {
 			return getNextFloorTask();
 		} else {
+			notifyAll();
 			return getNextElevatorTask();			
 		}
+		
 	}
 	
 	public synchronized byte[] getNextElevatorTask() {
 
 		while (instructionEmpty) {
 			try {
-				wait();
 				System.out.println("wait() elevator get instruction ");
+				wait();
 			} catch (InterruptedException e) {
 				return null;
 			}
 		}
-		byte elevatorTask[] = {};
+		byte elevatorTask[] = new byte[2];
+		getElevatorData();
 
-		if (this.elevatorData[1] == 0) {// if stopped
+		if (!firstTask) {
+			if (this.elevatorData[1] == 0) {// if stopped
 
-			if (this.elevatorData[0] < instruction.getFloor()) {
-				elevatorTask[0] = (byte) this.instruction.getFloor();
-				elevatorTask[1] = (byte) 1; // byte 1 is direction Up
-				instruction = null;
-				instructionEmpty = true;
+				if (this.elevatorData[0] < instruction.getFloor()) {
+					elevatorTask[0] = (byte) this.instruction.getFloor();
+					elevatorTask[1] = (byte) 1; // byte 1 is direction Up
+					firstTask = true;
+					return elevatorTask;
+				}
+				if (this.elevatorData[0] > instruction.getFloor()) {
+					elevatorTask[0] = (byte) this.instruction.getFloor();
+					elevatorTask[1] = (byte) 2;// byte 2 is direction Down
+					firstTask = true;
+					return elevatorTask;
+				}
+
+			} else { // moving
+				// to be implemented next iteration
+				firstTask = true;
 				return elevatorTask;
 			}
-			if (this.elevatorData[0] > instruction.getFloor()) {
-				elevatorTask[0] = (byte) this.instruction.getFloor();
-				elevatorTask[1] = (byte) 2;// byte 2 is direction Down
-				instruction = null;
+
+		} else {
+			if (this.elevatorData[1] == 0) {// if stopped
 				instructionEmpty = true;
+				if (this.elevatorData[0] < instruction.getCarButton()) {
+					elevatorTask[0] = (byte) this.instruction.getCarButton();
+					elevatorTask[1] = (byte) 1; // byte 1 is direction Up
+					firstTask = false;
+					return elevatorTask;
+				}
+				if (this.elevatorData[0] > instruction.getCarButton()) {
+					elevatorTask[0] = (byte) this.instruction.getCarButton();
+					elevatorTask[1] = (byte) 2;// byte 2 is direction Down
+					firstTask = false;
+					return elevatorTask;
+				}
+
+			} else { // moving
+				// to be implemented next iteration
+				firstTask = false;
 				return elevatorTask;
 			}
+			
 
-		} else if (this.elevatorData[1] != 0) { // moving
-			//to be implemented next iteration
-			return elevatorTask;
 		}
 		return elevatorTask;
 
@@ -96,15 +118,16 @@ public class Scheduler {
 	public synchronized void putElevatorData(int[] data) {
 		while (!elevatorEmpty) {
 			try {
-				wait();
 				System.out.println("wait() elevator put data ");
+				wait();
+				
 			} catch (InterruptedException e) {
 				return;
 			}
 
 		}
 		this.elevatorData = data;
-		System.out.println("elevator put data");
+//		System.out.println("elevator put data");
 		this.elevatorEmpty = false;
 		notifyAll();
 		
@@ -123,7 +146,7 @@ public class Scheduler {
 		int[] eDataTemp = this.elevatorData;
 		elevatorEmpty = true;
 		notifyAll();
-		System.out.println("elevator get data ");
+//		System.out.println("elevator get data ");
 		return eDataTemp;
 
 	}
@@ -160,12 +183,12 @@ public class Scheduler {
 		
 		if (floorTask == FloorTask.ARRIVAL) {
 			floorTask = FloorTask.NOTHING;
-			byte[] task = {(byte) currentElevatorFloor, (byte) 0}; // 0 means arrival
+			byte[] task = {(byte) elevatorData[0], (byte) 0}; // 0 means arrival
 			notifyAll();
 			return task;
 		} else {
 			floorTask = FloorTask.NOTHING;
-			byte[] task = {(byte) currentElevatorFloor, (byte) 1}; // 1 means departure
+			byte[] task = {(byte) elevatorData[0], (byte) 1}; // 1 means departure
 			notifyAll();
 			return task;
 		}
@@ -173,88 +196,4 @@ public class Scheduler {
 	}
 	
 	
-//	
-//	/**
-//	 * This method will receive a floor from the floorSubsystem 
-//	 * It will be used to tell the elevator where to go next
-//	 * @param id identifies what type of object is calling get (0 for elevator, 1 for floor)
-//	 * @param param information being stored in the scheduler
-//	 */
-//	public synchronized void put(int id, int param) {//id 0 -> elevator sub system, 1 -> floor sub system
-//		if(id == 0) {
-//			while(!elevatorEmpty) {			
-//				try {			
-//					wait();	
-//					System.out.println("wait() elevator put ");		
-//					
-//				} catch(InterruptedException e) {
-//					return;
-//				}
-//				
-//			}
-//		
-//			elevatorData = param;
-//			System.out.println("elevator put data = " + elevatorData);
-//			this.elevatorEmpty = false;
-//			
-//		} else {
-//			while(!floorEmpty) {				
-//				try {					
-//					wait();
-//					System.out.println("wait() floor put  ");
-//					
-//				} catch(InterruptedException e) {		
-//					return;
-//				}
-//			}
-//			
-//			floorData = param;
-//			System.out.println("floor put data = " + floorData);
-//			this.floorEmpty = false;
-//		}
-//
-//		notifyAll();
-//	}
-//	
-//	/**
-//	 * This method will be called by the FloorSubsystem and Elevator subsystem to get the relevant data
-//	 * @return the floor that the elevator stopped at or the floorNumber that the elevator should go
-//	 * @param id identifies what type of object is calling get (0 for elevator, 1 for floor)
-//	 */
-//	public synchronized int get(int id) {
-//		
-//		if(id == 0) { 
-//			while(floorEmpty) {	
-//				try {	
-//					wait();
-//					System.out.println("wait() elevator get ");				
-//				} catch (InterruptedException e) {
-//	
-//				}
-//				
-//			}
-//			int floorDataTemp = floorData;
-//			System.out.println("elevator get floor data = " + floorDataTemp);
-//			this.floorEmpty = true;
-//			notifyAll();
-//			return floorDataTemp;
-//
-//		} else { 
-//			while(elevatorEmpty) {
-//				try {
-//					wait();
-//					System.out.println("wait() floor get ");	
-//				} catch (InterruptedException e) {	
-//				}
-//				
-//			}
-//			int elevatorDataTemp = elevatorData;
-//			System.out.println("floor get elevator data = " + elevatorDataTemp);
-//			this.elevatorEmpty = true;
-//			notifyAll();
-//			return elevatorData;
-//
-//		}
-//
-//	}
 }

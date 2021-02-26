@@ -13,8 +13,8 @@ public class Main {
 		Thread elevator, floorSubsystem;
 		Scheduler scheduler = new Scheduler();
 		
-		elevator = new Thread(new Elevator(scheduler, 1, 6),"Elevator");
-		floorSubsystem = new Thread(new FloorSubsystem(6, scheduler, filePath), "FloorSubsystem");
+		elevator = new Thread(new Elevator(scheduler, 1, 8),"Elevator");
+		floorSubsystem = new Thread(new FloorSubsystem(8, scheduler, filePath), "FloorSubsystem");
 		
 		elevator.start();
 		floorSubsystem.start();
