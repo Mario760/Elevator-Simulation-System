@@ -64,16 +64,19 @@ public class Elevator implements Runnable {
 	 */
 	
 	public void goToFloor(byte floorNum, byte direction) {
-		if (direction == (byte) 0) {
+		//close doors
+		
+		if (direction == (byte) 1) {
 			move(MotorDirection.UP);
 			try {
+				//calculate time to spend each elevator
 				// assuming it takes 1 second to travel between each floor
 				int floorsToTravel = floorNum - this.flooNumber;
 				System.out.println("Elevator moving up to floor " + floorNum + "...");
 				Thread.sleep(floorsToTravel * 1000);
 			} catch (InterruptedException e) {
 			}
-		} else if (direction == (byte) 1) {
+		} else if (direction == (byte) 2) {
 			move(MotorDirection.DOWN);
 			try {
 				int floorsToTravel = this.flooNumber - floorNum;
@@ -84,7 +87,25 @@ public class Elevator implements Runnable {
 		}
 		move(MotorDirection.STOPPED);
 		this.flooNumber = (int) floorNum;
-		scheduler.reachedFloor();
+
+		//open door
+		door = true;
+		System.out.println("Elevator arrived");
+		System.out.println("Opening doors");
+		
+		scheduler.reachedDepartureFloor(FloorTask.ARRIVAL);
+		//wait 9 seconds 
+		try {
+			Thread.sleep(9000);
+		} catch (InterruptedException e) {
+		}
+		System.out.println("Closing doors");
+		door = false;
+		//close doors
+		//departure
+		System.out.println("Elevator departured");
+		scheduler.reachedDepartureFloor(FloorTask.DEPARTURE);
+
 
 	}
 
@@ -115,21 +136,19 @@ public class Elevator implements Runnable {
 		
 		while(true) {
 			
-			System.out.println("Sending Elevator state to scheduler");
-			scheduler.putElevatorState(this.motor);
+			System.out.println("Sending Elevator data to scheduler " + this.flooNumber + " " + this.motor);
+			int[] data= {};
+			data[0] = this.flooNumber;
+			if(this.motor == MotorDirection.STOPPED) {
+				data[1] = 0;
+			}else if(this.motor == MotorDirection.UP) {
+				data[1] = 1;
+			}else {
+				data[1] = 2;
+			}
+			scheduler.putElevatorData(data);
 			byte task[] = scheduler.getNextTask(0);
 			goToFloor(task[0],task[1]);
-//			scheduler.put(0, this.flooNumber);
-//			int floorNum = scheduler.get(0);
-//			toggleButton(floorNum);
-//			goToFloor(floorNum);
-//			System.out.println("Elevator moved to the floor requesting");
-//			scheduler.put(0, this.flooNumber);
-//			int floorNum2 = scheduler.get(0);
-//			toggleButton(floorNum2);
-//			goToFloor(floorNum2);
-//			System.out.println("Elevator moved to the destination floor");
-//			scheduler.put(0,this.flooNumber);
 			
 		}
 		

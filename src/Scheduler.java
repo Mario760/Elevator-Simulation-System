@@ -12,32 +12,35 @@ public class Scheduler {
 	private MotorDirection elevatorState = MotorDirection.STOPPED;
 	private int currentElevatorFloor = 0;
 	private boolean elevatorArrived = false;
-	private boolean elevatorStateEmpty = true;
-	private boolean elevatorFloorEmpty = true;
+	private int elevatorData[];
+	private boolean elevatorEmpty;
+//	private boolean elevatorStateEmpty = true;
+//	private boolean elevatorFloorEmpty = true;
 	private boolean floorEmpty = true;
-	private boolean done = false;
 	private FloorTask floorTask = FloorTask.NOTHING;
-	private Queue<Instruction> instructions;
+	private Instruction instruction;
+	private boolean instructionEmpty = false;
 	
-	/**
-	 * Constructor
-	 * Used to set up the instructions queue
-	 */
-	public Scheduler() {
-		instructions = new LinkedList<Instruction>();
-	}
 	
 	/**
 	 * This method will be called by the FloorSubsystem to populate the instructions list
 	 * @param instruction an Instruction
 	 */
-	public void receiveInstruction(Instruction instruction) {
-		instructions.add(instruction);
+	public synchronized void receiveInstruction(Instruction instruction) {
+		while(!instructionEmpty) {
+			try {
+				wait();
+				System.out.println("wait() instruction put ");
+			} catch (InterruptedException e) {
+				return;
+			}
+		}
+		this.instruction = instruction;
+		instructionEmpty = false;
+		notifyAll();
+		
 	}
 	
-	public boolean getDone() {
-		return done;
-	}
 	
 	/**
 	 * This method figures out what is asking for the next task and returns the appropriate method
@@ -53,111 +56,78 @@ public class Scheduler {
 	}
 	
 	public synchronized byte[] getNextElevatorTask() {
-		
-		//Elevator code goes here!
-		//when the elevator arrives at a floor change floorTask to FloorTask.ARRIVAL
-		//when the elevator sends its a state of not moving it should peek the queue for where to go next
-		/**
-		 * When the elevator arrives at a floor, the scheduler should pop the queue and save it to a Instruction variable and compare it to the next instruction (peek).
-		 * If the next instruction is within (9 + time to travel) seconds of the first instruction and they are both going in the same direction, 
-		 * check if the floor is between the elevator's current floor and its destination.
-		 * If so, the elevator will need to stop early and repeat this process
-		 */
-		
-		// I'd suggest a list of floors the elevator needs to visit either on scheduler or elevator because the elevator does not care why its going to the floor just the floor its going too
-		
-		while(floorEmpty) {
+
+		while (instructionEmpty) {
 			try {
 				wait();
-				System.out.println("wait() elevator put state ");
+				System.out.println("wait() elevator get instruction ");
 			} catch (InterruptedException e) {
 				return null;
-			}		
+			}
 		}
-		
-		if(getElevatorState()==MotorDirection.STOPPED) {
-			
-			if(this.currentElevatorFloor < instructions.peek().getFloor() ) {
-				
-				byte elevatorTask[] = {(byte)this.instructions.poll().getFloor(),(byte)0}; //byte 0 is direction Up
+		byte elevatorTask[] = {};
+
+		if (this.elevatorData[1] == 0) {// if stopped
+
+			if (this.elevatorData[0] < instruction.getFloor()) {
+				elevatorTask[0] = (byte) this.instruction.getFloor();
+				elevatorTask[1] = (byte) 1; // byte 1 is direction Up
+				instruction = null;
+				instructionEmpty = true;
 				return elevatorTask;
-				
+			}
+			if (this.elevatorData[0] > instruction.getFloor()) {
+				elevatorTask[0] = (byte) this.instruction.getFloor();
+				elevatorTask[1] = (byte) 2;// byte 2 is direction Down
+				instruction = null;
+				instructionEmpty = true;
+				return elevatorTask;
 			}
 
+		} else if (this.elevatorData[1] != 0) { // moving
+			//to be implemented next iteration
+			return elevatorTask;
 		}
+		return elevatorTask;
 
-			
-		}
-		
-		
-	}
+	}		
 	
-	public synchronized void putElevatorState(MotorDirection direction) {
-		while (!elevatorStateEmpty) {
+	
+	public synchronized void putElevatorData(int[] data) {
+		while (!elevatorEmpty) {
 			try {
 				wait();
-				System.out.println("wait() elevator put state ");
+				System.out.println("wait() elevator put data ");
 			} catch (InterruptedException e) {
 				return;
 			}
 
 		}
-		this.elevatorState = direction;
-		System.out.println("elevator put state = " + direction);
-		this.elevatorStateEmpty = false;
+		this.elevatorData = data;
+		System.out.println("elevator put data");
+		this.elevatorEmpty = false;
 		notifyAll();
 		
 	}
 	
-	public synchronized MotorDirection getElevatorState() {
-		while (elevatorStateEmpty) {
+	public synchronized int[] getElevatorData() {
+		while (elevatorEmpty) {
 			try {
 				wait();
-				System.out.println("wait() elevator get state ");
+				System.out.println("wait() elevator get data ");
 			} catch (InterruptedException e) {
 				return null;
 			}
 
 		}
-		MotorDirection stateTemp = this.elevatorState;
-		this.elevatorState = MotorDirection.STOPPED;
-		elevatorStateEmpty = true;
+		int[] eDataTemp = this.elevatorData;
+		elevatorEmpty = true;
 		notifyAll();
-		System.out.println("elevator get state = " + stateTemp);
-		return stateTemp;
+		System.out.println("elevator get data ");
+		return eDataTemp;
 
 	}
 
-	public synchronized void putElevatorFloor(int floorNum) {
-		while (!elevatorFloorEmpty) {
-			try {
-				wait();
-				System.out.println("wait() elevator put floor ");
-			} catch (InterruptedException e) {
-				return;
-			}
-		}
-		this.currentElevatorFloor = floorNum;
-		elevatorFloorEmpty = false;
-		notifyAll();
-	}
-
-	public synchronized int getElevatorFloor() {
-		while (elevatorFloorEmpty) {
-			try {
-				wait();
-				System.out.println("wait() elevator get floor ");
-			} catch (InterruptedException e) {
-				return 0;
-			}
-
-		}
-		
-		int elevatorFloorTemp = this.currentElevatorFloor;
-		elevatorFloorEmpty = true;
-		notifyAll();
-		return elevatorFloorTemp;
-	}
 	
 	public synchronized void reachedDepartureFloor(FloorTask state) {
 		while (floorTask != FloorTask.NOTHING) {
@@ -170,8 +140,7 @@ public class Scheduler {
 		}
 		
 		floorTask = state;
-		
-
+		notifyAll();
 	}
 
 	
@@ -190,27 +159,15 @@ public class Scheduler {
 		}
 		
 		if (floorTask == FloorTask.ARRIVAL) {
-			floorTask = FloorTask.DEPARTURE;
+			floorTask = FloorTask.NOTHING;
 			byte[] task = {(byte) currentElevatorFloor, (byte) 0}; // 0 means arrival
 			notifyAll();
 			return task;
-		} else if (floorTask == FloorTask.DEPARTURE) {
+		} else {
 			floorTask = FloorTask.NOTHING;
 			byte[] task = {(byte) currentElevatorFloor, (byte) 1}; // 1 means departure
 			notifyAll();
 			return task;
-		} else { // Button press
-			floorTask = FloorTask.NOTHING;
-			Instruction info = instructions.peek();
-			if (info.getFloorButton() == FloorDirection.UP) {
-				byte[] task = {(byte) info.getFloor(), (byte) 2}; // 2 means UP
-				notifyAll();
-				return task;
-			} else {
-				byte[] task = {(byte) info.getFloor(), (byte) 3}; // 3 means DOWN
-				notifyAll();
-				return task;
-			}
 		}
 		
 	}
