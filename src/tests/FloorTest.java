@@ -1,8 +1,13 @@
+package tests;
 import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import main.Floor;
+import main.FloorLamp;
+import main.FloorButton;
+import main.FloorDirection;
 
 /**
  * @author Alec Jeffery
@@ -25,7 +30,7 @@ public class FloorTest {
 		
 		// top and bottom floors should have 1 button, 
 		// any other floor will have 2
-		assertEquals(bottomFloorButtons.length, 1);
+		assertEquals(bottomFloor.getButtons().length, 1);
 		assertEquals(middleFloorButtons.length, 2);
 		assertEquals(topFloorButtons.length, 1);
 	}

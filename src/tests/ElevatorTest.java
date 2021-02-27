@@ -1,7 +1,12 @@
+package tests;
 import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import main.Elevator;
+import main.Scheduler;
+import main.MotorDirection;
 
 /**
  *  Test for Elevator class

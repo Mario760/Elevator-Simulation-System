@@ -1,3 +1,4 @@
+package main;
 import java.util.ArrayList;
 
 /**
@@ -208,14 +209,4 @@ class ElevatorButton {
 		return this.lamp;
 	}
 
-}
-
-/**
- * Enum class to represent the state of the motor
- * 
- * @author Peyman Tajadod
- *
- */
-enum MotorDirection {
-	STOPPED, UP, DOWN
 }
