@@ -1,7 +1,7 @@
 
 /**
  * This class contains the Floor object to be controlled by the FloorSubsystem
- * @author Campbell de Winter
+ * @author Campbell de Winter & Alex Tasseron
  *
  */
 public class Floor {

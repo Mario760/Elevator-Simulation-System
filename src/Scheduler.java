@@ -2,7 +2,7 @@ import java.util.*;
 
 /**
  * This is the scheduler class that follows the mutual exclusion and condition synchronization
- * @author Peyman Tajadod
+ * @author Peyman Tajadod & Alex Tasseron
  *
  */
 
@@ -195,5 +195,13 @@ public class Scheduler {
 		
 	}
 	
+	/**
+	 * This method is purely for testing purposes, to reset the floorTask value, so 
+	 * a Thread isn't needed to be used in the tests
+	 */
+	public void resetFloorTaskAndElevatorEmpty() {
+		this.floorTask = FloorTask.NOTHING;
+		this.elevatorEmpty = true;
+	}
 	
 }
