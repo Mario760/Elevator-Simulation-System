@@ -62,10 +62,12 @@ public class FloorSubsystem implements Runnable{
 	 * @param floor the floor that the elevator arrived at
 	 */
 	public void handleArrival(int floor) {
+		System.out.println("Elevator has arrived on Floor " + floor + "\nOpening doors now");
 		floors.get(floor - 1).handleArrival();
 	}
 	
 	public void handleDeparture(int floor) {
+		System.out.println("Closing doors for elevator departure");
 		floors.get(floor - 1).handleDeparture();
 	}
 	
@@ -79,15 +81,18 @@ public class FloorSubsystem implements Runnable{
 		    LineNumberReader line = new LineNumberReader(new FileReader(filePath)); // LineNumberReader allows for getting the line number. Might be useful in a future iteration
 		    String lineText = null;
 		    while ((lineText = line.readLine()) != null) { // It will read the next line every while iteration (until it reaches the end)
+		    	System.out.println("Parsing Line: " + lineText + " and sending the Instruction to Scheduler");
 		        String[] instructions = lineText.split(" "); // splitting the line by whitespace due to the format of the input file
 		        FloorDirection direction = FloorDirection.DOWN;
 		        if (instructions[2] == "Up") { // up button press
 		        	direction = FloorDirection.UP;
 		        	this.pressButton(Integer.parseInt(instructions[1]), direction);
+		        	System.out.println("Pressing UP on floor " + instructions[1]);
 		        }
 		        if (instructions[2] == "Down") { // down button press
 		        	direction = FloorDirection.DOWN;
 		        	this.pressButton(Integer.parseInt(instructions[1]), direction);
+		        	System.out.println("Pressing DOWN on floor " + instructions[1]);
 		        }
 		        scheduler.receiveInstruction(new Instruction(instructions[0], Integer.parseInt(instructions[1]), direction, Integer.parseInt(instructions[3]))); // sending instruction to scheduler
 		        this.handleTask(scheduler.getNextTask(1)); // arrival task
