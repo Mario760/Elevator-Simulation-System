@@ -1,9 +1,12 @@
-
 import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
 
+
+/**
+ * @author Alec Jeffery
+ */
 public class FloorTest {
 	public Floor bottomFloor, middleFloor, topFloor;
 
@@ -25,5 +28,36 @@ public class FloorTest {
 		assertEquals(bottomFloorButtons.length, 1);
 		assertEquals(middleFloorButtons.length, 2);
 		assertEquals(topFloorButtons.length, 1);
+	}
+	
+	/**
+	 * Tests both the arrival and departure handlers in the
+	 * Floor class.
+	 */
+	@Test
+	public final void testHandler() {
+		FloorLamp floorLamp = middleFloor.getLamp();
+		FloorButton[] floorButtons = middleFloor.getButtons();
+		
+		// Test initial state
+		assertEquals(floorLamp.getState(), false);
+		assertEquals(floorLamp.getDirection(), null);
+		assertEquals(floorButtons[0].isPressed(), false);
+		assertEquals(floorButtons[1].isPressed(), false);
+		
+		// Test states after pressButton and handleDearture
+		middleFloor.pressButton(FloorDirection.UP);
+		middleFloor.handleDeparture();
+		assertEquals(floorLamp.getState(), false);
+		assertEquals(floorLamp.getDirection(), FloorDirection.UP);
+		assertEquals(floorButtons[0].isPressed(), true);
+		assertEquals(floorButtons[1].isPressed(), false);
+
+		// Test states after handleArrival
+		middleFloor.handleArrival();
+		assertEquals(floorLamp.getState(), true);
+		assertEquals(floorLamp.getDirection(), FloorDirection.UP);
+		assertEquals(floorButtons[0].isPressed(), false);
+		assertEquals(floorButtons[1].isPressed(), false);
 	}
 }
