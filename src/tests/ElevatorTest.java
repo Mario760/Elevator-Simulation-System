@@ -9,7 +9,7 @@ import main.Scheduler;
 import main.MotorDirection;
 
 /**
- *  Test for Elevator class
+ * Test for Elevator class
  * @author Jiawei Ma & Alec Jeffery
  */
 public class ElevatorTest {
