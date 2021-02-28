@@ -1,3 +1,4 @@
+package main;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -30,9 +31,9 @@ public class FloorSubsystem implements Runnable{
 	 */
 	public FloorSubsystem(int numberOfFloors, Scheduler scheduler, String filePath) {
 		if (numberOfFloors <= 1) {
-			System.out.print("No need for an elvator if the building has only 1 floor");
+			System.out.print("No need for an elevator if the building has only 1 floor");
 			System.exit(1);
-			//throw SillyGooseException e;
+			// throw SillyGooseException e;
 		}
 		this.scheduler = scheduler;
 		this.filePath = filePath;
@@ -115,13 +116,13 @@ public class FloorSubsystem implements Runnable{
 	 * 	1 = departure
 	 * @return True of False depending if the task was valid
 	 */
-	private boolean handleTask(byte[] task) {
+	public boolean handleTask(byte[] task) {
 		if (task[0] == (byte) 0 && task[1] == (byte) 0) { // making sure the result is valid
 			System.out.println("Invalid Task");
 			return false;
 		}
 		int floor = (int) task[0];
-//		System.out.println("floor number recieved from elevator: " + floor);
+//		System.out.println("floor number received from elevator: " + floor);
 		switch (task[1]) {
 		case (byte) 0: // elevator has arrived
 			this.handleArrival(floor);

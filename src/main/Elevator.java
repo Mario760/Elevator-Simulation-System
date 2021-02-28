@@ -1,22 +1,23 @@
+package main;
 import java.util.ArrayList;
 
 /**
  * This class is the Elevator subsystem.
  *
- * @author Peyman Tajadod
+ * @author Peyman Tajadod & Jiawei Ma
  */
 public class Elevator implements Runnable {
 
 	private Scheduler scheduler;
 	private int elevatorNum;
-	private int flooNumber; // the floor that the elevator is on
+	private int floorNumber; // the floor that the elevator is on
 	private ArrayList<ElevatorButton> buttons; // number of buttons/floors in the system
 	private MotorDirection motor;
 	private boolean door;
 
 	public Elevator(Scheduler scheduler, int elevatorNum, int buttonsNum) {
 		this.elevatorNum = elevatorNum;
-		this.flooNumber = 1;
+		this.floorNumber = 1;
 		this.buttons = new ArrayList<>();
 		for (int i = 1; i <= buttonsNum; i++) {
 			buttons.add(new ElevatorButton(i, false));
@@ -74,12 +75,12 @@ public class Elevator implements Runnable {
 		if (direction == (byte) 1) {
 			move(MotorDirection.UP);
 			// assuming it takes 3 second to travel between each floor
-			int floorsToTravel = floorNum - this.flooNumber;
+			int floorsToTravel = floorNum - this.floorNumber;
 			System.out.println("Elevator moving UP to floor " + floorNum + "... takes 3 seonds each floor...");
 			for (int i = 1; i <= floorsToTravel; i++) {
 				try {
 					System.out.println(".");
-					System.out.println(this.flooNumber + i);
+					System.out.println(this.floorNumber + i);
 					Thread.sleep(3000);
 				} catch (InterruptedException e) {
 				}
@@ -88,12 +89,12 @@ public class Elevator implements Runnable {
 
 		} else if (direction == (byte) 2) {
 			move(MotorDirection.DOWN);
-			int floorsToTravel = this.flooNumber - floorNum;
+			int floorsToTravel = this.floorNumber - floorNum;
 			System.out.println("Elevator moving DOWN to floor " + floorNum + "... takes 3 seonds each floor.....");
 			for (int i = 1; i <= floorsToTravel; i++) {
 				try {
 					System.out.println(".");
-					System.out.println(this.flooNumber + i);
+					System.out.println(this.floorNumber + i);
 					Thread.sleep(3000);
 				} catch (InterruptedException e) {
 				}
@@ -102,9 +103,9 @@ public class Elevator implements Runnable {
 
 		}
 		move(MotorDirection.STOPPED);
-		this.flooNumber = (int) floorNum;
+		this.floorNumber = (int) floorNum;
 		int[] data = new int[2];
-		data[0] = this.flooNumber;
+		data[0] = this.floorNumber;
 		data[1] = 0;
 
 		scheduler.putElevatorData(data);
@@ -112,18 +113,20 @@ public class Elevator implements Runnable {
 		// open door
 		this.door = true;
 		System.out.println("Elevator arrived");
-		System.out.println("Opening doors... takes 9 secodns");
+		System.out.println("Opening doors... takes 3 seconds");
 
 		scheduler.reachedDepartureFloor(FloorTask.ARRIVAL);
 		// wait 9 seconds
 		try {
-			Thread.sleep(9000);
+			Thread.sleep(3000);
 		} catch (InterruptedException e) {
 		}
 		System.out.println("Closing doors");
 		this.door = false;
-		scheduler.reachedDepartureFloor(FloorTask.DEPARTURE);
-		scheduler.getElevatorData();
+		
+		// moved these to run() so testing was possible without Threads
+//		scheduler.reachedDepartureFloor(FloorTask.DEPARTURE);
+//		scheduler.getElevatorData();
 
 	}
 
@@ -132,8 +135,8 @@ public class Elevator implements Runnable {
 	 * 
 	 * @return flooNumber, current floor number.
 	 */
-	public int getFlooNumber() {
-		return flooNumber;
+	public int getFloorNumber() {
+		return floorNumber;
 	}
 
 	/**
@@ -155,9 +158,9 @@ public class Elevator implements Runnable {
 
 		while (true) {
 
-			System.out.println("Sending Elevator data to scheduler " + this.flooNumber);
+			System.out.println("Sending Elevator data to scheduler " + this.floorNumber);
 			int[] data = new int[2];
-			data[0] = this.flooNumber;
+			data[0] = this.floorNumber;
 			if (this.motor == MotorDirection.STOPPED) {
 				data[1] = 0;
 			} else if (this.motor == MotorDirection.UP) {
@@ -168,6 +171,10 @@ public class Elevator implements Runnable {
 			scheduler.putElevatorData(data);
 			byte task[] = scheduler.getNextTask(0);
 			goToFloor(task[0], task[1]);
+			
+			// moved these from goToFloor() so testing was possible without Threads
+			scheduler.reachedDepartureFloor(FloorTask.DEPARTURE);
+			scheduler.getElevatorData();
 
 		}
 
@@ -202,14 +209,4 @@ class ElevatorButton {
 		return this.lamp;
 	}
 
-}
-
-/**
- * Enum class to represent the state of the motor
- * 
- * @author Peyman Tajadod
- *
- */
-enum MotorDirection {
-	STOPPED, UP, DOWN
 }
