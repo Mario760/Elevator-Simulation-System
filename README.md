@@ -75,17 +75,16 @@ Scheduler: Sends instructions to Floor and Elevator systems, governened by MUTEX
 
 #### Testing:
 
-ElevatorTest: 
+ElevatorTest: Focuses on the goToFloor method
 
-FloorSubsystemTest: 
+FloorSubsystemTest: Focuses on testing the handleTask method
 
-FloorTest: 
+FloorTest: Focuses on testing the Floor Constructor, and arrival & departure handlers
 
-SchedulerTest: 
+SchedulerTest: Focuses on testing getNextElevatorTask, getNextFloorTask methods
 
-Test files are in the default package along with the rest of the Class files. 
-All Files ending with the word "Test" is to be ran manually (right click, Run As -> JUnit Test)
+All test files are in the tests package. All tests can be ran at once by:
+Right Click "tests" package -> Run as -> JUnit Test
 
-NOTE: Test files will be separated into their own package in later iterations
 
 
