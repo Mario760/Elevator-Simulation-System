@@ -4,8 +4,8 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import FloorSubsystem.FloorDirection;
 import main.Elevator;
-import main.FloorDirection;
 import main.FloorSubsystem;
 import main.FloorTask;
 import main.Instruction;

@@ -1,4 +1,4 @@
-package main;
+package FloorSubsystem;
 
 /**
  * This class contains the FloorButton object to be used by the Floor

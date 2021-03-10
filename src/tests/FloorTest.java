@@ -4,10 +4,10 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import main.Floor;
-import main.FloorLamp;
-import main.FloorButton;
-import main.FloorDirection;
+import FloorSubsystem.Floor;
+import FloorSubsystem.FloorButton;
+import FloorSubsystem.FloorDirection;
+import FloorSubsystem.FloorLamp;
 
 /**
  * @author Alec Jeffery

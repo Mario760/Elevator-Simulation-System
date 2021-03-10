@@ -1,4 +1,7 @@
 package main;
+
+import FloorSubsystem.FloorDirection;
+
 /**
  * This class will be the datatype used to transfer and handle the input file instructions
  * I decided on a custom datatype to make using a queue simpler and it allows for expansion when we reach the fault iteration.

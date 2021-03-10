@@ -1,4 +1,4 @@
-package main;
+package FloorSubsystem;
 
 /**
  * This class is contains the FloorLamp object to be controlled by the Floor
