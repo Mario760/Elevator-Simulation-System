@@ -39,12 +39,10 @@ public class FloorReceiver implements Runnable {
 	 * Currently for byte[1]
 	 * 	0 = arrival
 	 * 	1 = departure
-	 *  2 = Up button
-	 *  3 = Down button
 	 * @return True of False depending if the task was valid
 	 */
 	private boolean handleTask(byte[] task) {
-		if (task[0] == (byte) 0 || task[1] > (byte) 3) { // making sure the result is valid
+		if (task[0] == (byte) 0 || task[1] > (byte) 1) { // making sure the result is valid
 			System.out.println("Invalid Task");
 			return false;
 		}
@@ -55,12 +53,6 @@ public class FloorReceiver implements Runnable {
 			break;
 		case (byte) 1: // elevator is leaving 
 			floorSubsystem.handleDeparture(floor);
-			break;
-		case (byte) 2:
-			floorSubsystem.pressButton(floor, FloorDirection.UP);
-			break;
-		case (byte) 3:
-			floorSubsystem.pressButton(floor, FloorDirection.DOWN);
 			break;
 		}
 		return true;
