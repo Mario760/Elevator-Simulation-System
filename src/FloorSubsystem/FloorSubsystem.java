@@ -1,4 +1,4 @@
-package main;
+package FloorSubsystem;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -7,8 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import FloorSubsystem.Floor;
-import FloorSubsystem.FloorDirection;
+import main.Scheduler;
 
 /*
 * git good or git gone

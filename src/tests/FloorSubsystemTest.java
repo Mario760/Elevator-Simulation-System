@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import main.FloorSubsystem;
+import FloorSubsystem.FloorSubsystem;
 import main.Scheduler;
 
 /**
