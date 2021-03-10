@@ -40,9 +40,9 @@ public class Instruction {
 			System.out.println("Invalid Time\n");
 			return -1;
 		}
-		int hours = Integer.parseInt(times[0]);
-		int mins = Integer.parseInt(times[1]);
-		int seconds = Integer.parseInt(times[2]);
+		double hours = Double.parseDouble(times[0]);
+		double mins = Double.parseDouble(times[1]);
+		double seconds = Double.parseDouble(times[2]);
 		return (hours * 3600) + (mins * 60) + seconds;
 	}
 	
