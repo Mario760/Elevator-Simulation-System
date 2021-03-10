@@ -10,20 +10,30 @@ public class inputScheduler implements Runnable{
 	private String filepath;
 	private FloorSubsystem floorSubsystem;
 	
+	/**
+	 * Constructor for the inputScheduler
+	 * @param filepath the path of the file to be parsed
+	 * @param floorSubsystem the object this thread will perform actions on
+	 */
 	public inputScheduler(String filepath, FloorSubsystem floorSubsystem) {
 		this.filepath = filepath;
 		this.floorSubsystem = floorSubsystem;
 	}
 	
-	private int getTimeInSeconds(String time) {
+	/**
+	 * Converts the time string into seconds
+	 * @param time a string representing the time at which the button was pressed
+	 * @return the time in seconds as a double
+	 */
+	private double getTimeInSeconds(String time) {
 		String[] times = time.split(":");
 		if (times.length !=  4) {
 			System.out.println("Invalid Time\n");
 			return -1;
 		}
-		int hours = Integer.parseInt(times[0]);
-		int mins = Integer.parseInt(times[1]);
-		int seconds = Integer.parseInt(times[2]);
+		double hours = Double.parseDouble(times[0]);
+		double mins = Double.parseDouble(times[1]);
+		double seconds = Double.parseDouble(times[2]);
 		return (hours * 3600) + (mins * 60) + seconds;
 	}
 	
@@ -36,14 +46,14 @@ public class inputScheduler implements Runnable{
 			
 		    LineNumberReader lineReader = new LineNumberReader(new FileReader(filepath)); // LineNumberReader allows for getting the line number. Might be useful in a future iteration
 		    String line;
-		    int prevTime = 0;
+		    double prevTime = 0;
 		    while ((line = lineReader.readLine()) != null) { // It will read the next line every while iteration (until it reaches the end)
 		    	System.out.println("Parsing Line: " + line + " and sending the Instruction to Scheduler");
 		        String[] instructions = line.split(" "); // splitting the line by whitespace due to the format of the input file
-		        int currTime = getTimeInSeconds(instructions[0]);
+		        double currTime = getTimeInSeconds(instructions[0]);
 		        if (prevTime != 0) {
 		        	try {
-						Thread.sleep((currTime - prevTime) * 1000);
+						Thread.sleep((int)(( currTime - prevTime) * 1000)); // sleeping fro the difference
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
