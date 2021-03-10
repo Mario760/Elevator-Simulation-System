@@ -1,10 +1,7 @@
 package FloorSubsystem;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.LineNumberReader;
+import java.net.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import main.Scheduler;
@@ -19,11 +16,10 @@ import main.Scheduler;
  * @author Campbell de Winter
  *
  */
-public class FloorSubsystem implements Runnable{
+public class FloorSubsystem {
 	private List<Floor> floors; // list of floors
-	private Scheduler scheduler; // the scheduler containing the synchronized methods
-	private HashMap<String, Object> info; // This HashMap contains the info to be passed to the scheduler
-	private String filePath; // the file path of the input file
+	private DatagramPacket sendPacket, receivePacket;
+	private DatagramSocket instructionSocket; // This socket will send packets to the scheduler
 	
 	/**
 	 * The constructor for the FloorSubSystem
@@ -37,9 +33,7 @@ public class FloorSubsystem implements Runnable{
 			System.exit(1);
 			// throw SillyGooseException e;
 		}
-		this.scheduler = scheduler;
-		this.filePath = filePath;
-		this.info = new HashMap<String, Object>(); // String, Object for Key, Value
+		
 		this.floors = new ArrayList<Floor>();
 		for (int i = 1; i <= numberOfFloors; i++) {
 			if (i == 1) { // first floor
@@ -50,12 +44,19 @@ public class FloorSubsystem implements Runnable{
 				floors.add(new Floor(i, 2));
 			}
 		}
+		
+		try {
+			this.instructionSocket = new DatagramSocket(2);
+		} catch (SocketException se) {
+			se.printStackTrace();
+			System.exit(1);
+		}
 	}
 	
 	/**
 	 * This method presses one of the floors buttons (by calling pressButton() on the floor) based on the info hashmap
 	 */
-	public void pressButton(int floor, FloorDirection direction) {
+	public synchronized void pressButton(int floor, FloorDirection direction) {
 		floors.get(floor - 1).pressButton(direction);
 	}
 	
@@ -64,50 +65,16 @@ public class FloorSubsystem implements Runnable{
 	 * It calls the floor's handleArrival() method, Sleeps for 9 seconds (9.175 was our average load/unload time) and then calls the floor's handleDeparture() method
 	 * @param floor the floor that the elevator arrived at
 	 */
-	public void handleArrival(int floor) {
+	public synchronized void handleArrival(int floor) {
 		System.out.println("Elevator has arrived on Floor " + floor + "\nOpening doors now");
 		floors.get(floor - 1).handleArrival();
 	}
 	
-	public void handleDeparture(int floor) {
+	public synchronized void handleDeparture(int floor) {
 		System.out.println("Closing doors for elevator departure");
 		floors.get(floor - 1).handleDeparture();
 	}
 	
-	/**
-	 * This method is called by the run method and is used to read the input file so that it can send relevant info to the scheduler
-	 * It presses the required floor button (helper function) and receives the next floor instruction as well (which is dealt with by a helper function)
-	 */
-	private void readInputFile() {
-		try {
-			System.out.println("Just got the input file");
-		    LineNumberReader line = new LineNumberReader(new FileReader(filePath)); // LineNumberReader allows for getting the line number. Might be useful in a future iteration
-		    String lineText = null;
-		    while ((lineText = line.readLine()) != null) { // It will read the next line every while iteration (until it reaches the end)
-		    	System.out.println("Parsing Line: " + lineText + " and sending the Instruction to Scheduler");
-		        String[] instructions = lineText.split(" "); // splitting the line by whitespace due to the format of the input file
-		        FloorDirection direction = FloorDirection.DOWN;
-		        if (instructions[2] == "Up") { // up button press
-		        	direction = FloorDirection.UP;
-		        	this.pressButton(Integer.parseInt(instructions[1]), direction);
-		        	System.out.println("Pressing UP on floor " + instructions[1]);
-		        }
-		        if (instructions[2] == "Down") { // down button press
-		        	direction = FloorDirection.DOWN;
-		        	this.pressButton(Integer.parseInt(instructions[1]), direction);
-		        	System.out.println("Pressing DOWN on floor " + instructions[1]);
-		        }
-		        scheduler.receiveInstruction(new Instruction(instructions[0], Integer.parseInt(instructions[1]), direction, Integer.parseInt(instructions[3]))); // sending instruction to scheduler
-		        this.handleTask(scheduler.getNextTask(1)); // arrival task
-		        this.handleTask(scheduler.getNextTask(1)); // departure task
-		        this.handleTask(scheduler.getNextTask(1)); // arrival task
-		        this.handleTask(scheduler.getNextTask(1)); // departure task
-		    }
-		    line.close(); // closing the file
-		} catch (IOException e) { // safe coding practices only
-		    System.out.println(e);
-		}
-	}
 	
 	/**
 	 * Handles the byte code used for tasks
@@ -118,7 +85,7 @@ public class FloorSubsystem implements Runnable{
 	 * 	1 = departure
 	 * @return True of False depending if the task was valid
 	 */
-	public boolean handleTask(byte[] task) {
+	public synchronized boolean handleTask(byte[] task) {
 		if (task[0] == (byte) 0 && task[1] == (byte) 0) { // making sure the result is valid
 			System.out.println("Invalid Task");
 			return false;
@@ -136,16 +103,73 @@ public class FloorSubsystem implements Runnable{
 		return true;
 		
 	}
-
-	/**
-	 * This is the method that was implemented from the runnable interface
-	 * currently it only calls readInputFile
-	 */
-	@Override
-	public void run() {
-		readInputFile();
-		
-		
-	}
 	
+	/**
+	 * This Method will convert it's parameters into a byte[] 
+	 * Then it will send a datagram packet to the scheduler
+	 * [0] = floor number
+	 * [1] = direction
+	 * [2] = destination
+	 * [3] = fault type
+	 * [4]-[6] = time
+	 * 
+	 * @param time the time the button was pressed
+	 * @param floor the floor the button was pressed on
+	 * @param direction the direction if the button (Up/Down)
+	 * @param carButton the button pressed inside the elevator
+	 */
+	public synchronized void sendInstruction(String time, int floor, String direction, int carButton) {
+		byte[] instruction = new byte[7];
+		instruction[0] = (byte) floor;
+		if (direction == "Up") {
+			instruction[1] = (byte) 1; 
+		} else {
+			instruction[1] = (byte) 0; // defaulting to Down
+		}
+		instruction[2] = (byte) carButton;
+		instruction[3] = (byte) 0; // Faults are not implemented this iteration;
+		String[] timeArray = time.split(":"); // 3 numbers separated by 2 ':'
+		for (int i = 0; i < timeArray.length; i++) {
+			instruction[4 + i] = (byte) (Double.parseDouble(timeArray[i])); // the last # is a double
+		}
+		
+		try { // creating the datagram packet to send to scheduler
+			sendPacket = new DatagramPacket(instruction, instruction.length, InetAddress.getLocalHost(), 420);
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		
+		/*
+		 * sending a packet and then waiting for a packet to confirm that the original packet was received
+		 */
+		try {
+			instructionSocket.setSoTimeout(1000); // setting a timeout, if it fails to receive it will send again
+		} catch (SocketException e) {
+			e.printStackTrace();
+		} 
+		boolean done = false;
+		while (!done) {
+			try {
+				instructionSocket.send(sendPacket); // sending the packet
+			
+			} catch (IOException e) {
+				e.printStackTrace();
+				System.exit(1);
+			}
+			
+			byte[] data = new byte[1]; // anything back is a good sign so just 1 byte is needed
+			receivePacket = new DatagramPacket(data, data.length); // creating the receive packet
+			
+			try {
+				instructionSocket.receive(receivePacket);
+				done = true; // if a anything comes back then we know the message was received
+			} catch (SocketTimeoutException e) {
+				continue; // repeat the while if nothing is received after 1 second
+			} catch (IOException e) {
+				e.printStackTrace();
+				System.exit(1);
+			}
+		}
+	}
 }
