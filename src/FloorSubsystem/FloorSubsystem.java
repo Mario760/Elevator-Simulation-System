@@ -77,34 +77,6 @@ public class FloorSubsystem {
 	
 	
 	/**
-	 * Handles the byte code used for tasks
-	 * Also calls the appropriate 
-	 * @param task the byte[] for the current task byte[0] = floor #, byte[1] = what is actually happening
-	 * Currently for byte[1]
-	 * 	0 = arrival
-	 * 	1 = departure
-	 * @return True of False depending if the task was valid
-	 */
-	public synchronized boolean handleTask(byte[] task) {
-		if (task[0] == (byte) 0 && task[1] == (byte) 0) { // making sure the result is valid
-			System.out.println("Invalid Task");
-			return false;
-		}
-		int floor = (int) task[0];
-//		System.out.println("floor number received from elevator: " + floor);
-		switch (task[1]) {
-		case (byte) 0: // elevator has arrived
-			this.handleArrival(floor);
-			break;
-		case (byte) 1: // elevator is leaving 
-			this.handleDeparture(floor);
-			break;
-		}
-		return true;
-		
-	}
-	
-	/**
 	 * This Method will convert it's parameters into a byte[] 
 	 * Then it will send a datagram packet to the scheduler
 	 * [0] = floor number
