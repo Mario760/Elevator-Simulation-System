@@ -60,8 +60,13 @@ public class inputScheduler implements Runnable{
 					}
 		        }
 		        prevTime = currTime;
-		        floorSubsystem.sendInstruction(instructions[0], Integer.parseInt(instructions[1]), instructions[2], Integer.parseInt(instructions[3]));
-		        
+		        int floor = Integer.parseInt(instructions[1]);
+		        FloorDirection direction = FloorDirection.DOWN;
+		        if (instructions[2] == "Up") {
+		        	direction = FloorDirection.UP;
+		        }
+		        floorSubsystem.pressButton(floor, direction);
+		        floorSubsystem.sendInstruction(instructions[0], Integer.parseInt(instructions[1]), instructions[2], Integer.parseInt(instructions[3]));   
 		    }
 		    lineReader.close(); // closing the file
 		} catch (IOException e) { // safe coding practices only
