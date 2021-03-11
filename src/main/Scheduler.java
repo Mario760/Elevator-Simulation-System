@@ -1,4 +1,10 @@
 package main;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.*;
 
 /**
@@ -15,6 +21,21 @@ public class Scheduler {
 	private Instruction instruction;
 	private boolean instructionEmpty = true;
 	private boolean firstTask = false;
+	private DatagramPacket send, receive;
+	private DatagramSocket FloorSocket, elevatorSocket;
+	
+	public Scheduler() {
+		
+		try {
+			this.FloorSocket = new DatagramSocket(); 
+			//other datagram socket uses port 2 
+		}catch(SocketException se) {
+			se.printStackTrace();
+			
+		}
+		
+		
+	}
 	
 	
 	/**
@@ -172,26 +193,65 @@ public class Scheduler {
 	 * This method determines the next floor task by using the floorTask enum
 	 * @return a byte[] containing the next instruction for the floor
 	 */
-	public synchronized byte[] getNextFloorTask() {
+	public synchronized void getNextFloorTask() {
+		
 		while(floorTask == FloorTask.NOTHING) {
 			try {
 				wait();
 			} catch (InterruptedException e) {
 				byte[] failure = {(byte) 0, (byte) 0};
-				return failure;
+				
+				try {
+					send = new DatagramPacket(failure, failure.length, InetAddress.getLocalHost(), 420);
+				}catch(UnknownHostException ee) {
+					ee.printStackTrace();
+					
+				}	
+			
+				try {
+					FloorSocket.send(send);
+				} catch(IOException eee) {
+					eee.printStackTrace();
+				}
+				
 			}
+				
 		}
 		
 		if (floorTask == FloorTask.ARRIVAL) {
 			floorTask = FloorTask.NOTHING;
 			byte[] task = {(byte) elevatorData[0], (byte) 0}; // 0 means arrival
+			try {
+				send = new DatagramPacket(task, task.length, InetAddress.getLocalHost(), 420);
+			}catch(UnknownHostException ee) {
+				ee.printStackTrace();
+				
+			}	
+		
+			try {
+				FloorSocket.send(send);
+			} catch(IOException eee) {
+				eee.printStackTrace();
+			}
 			notifyAll();
-			return task;
+			
 		} else {
 			floorTask = FloorTask.NOTHING;
 			byte[] task = {(byte) elevatorData[0], (byte) 1}; // 1 means departure
+			try {
+				send = new DatagramPacket(task, task.length, InetAddress.getLocalHost(), 420);
+			}catch(UnknownHostException ee) {
+				ee.printStackTrace();
+				
+			}	
+		
+			try {
+				FloorSocket.send(send);
+			} catch(IOException eee) {
+				eee.printStackTrace();
+			}
 			notifyAll();
-			return task;
+			
 		}
 		
 	}
