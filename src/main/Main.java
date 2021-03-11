@@ -1,4 +1,7 @@
 package main;
+
+import FloorSubsystem.FloorSubsystem;
+
 /**
  * This is the Main class that acts as a client and will test and run the program.
  * @author Peyman Tajadod

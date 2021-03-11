@@ -1,4 +1,4 @@
-package main;
+package FloorSubsystem;
 
 /**
  * This class contains the Floor object to be controlled by the FloorSubsystem
