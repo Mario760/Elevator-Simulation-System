@@ -53,9 +53,13 @@ public class inputScheduler implements Runnable{
 		        double currTime = getTimeInSeconds(instructions[0]);
 		        if (prevTime != 0) {
 		        	try {
+<<<<<<< Upstream, based on origin/master
 						Thread.sleep((int)(( currTime - prevTime) * 1000)); // sleeping from the difference
+=======
+						Thread.sleep((int)(( currTime - prevTime) * 1000)); // sleeping for the difference
+>>>>>>> cce0244 Changed the ports
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
+
 						e.printStackTrace();
 					}
 		        }
