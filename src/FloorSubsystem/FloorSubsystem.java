@@ -106,7 +106,7 @@ public class FloorSubsystem {
 		}
 		
 		try { // creating the datagram packet to send to scheduler
-			sendPacket = new DatagramPacket(instruction, instruction.length, InetAddress.getLocalHost(), 420);
+			sendPacket = new DatagramPacket(instruction, instruction.length, InetAddress.getLocalHost(), 49152);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 			System.exit(1);

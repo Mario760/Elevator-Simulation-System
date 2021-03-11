@@ -53,9 +53,9 @@ public class inputScheduler implements Runnable{
 		        double currTime = getTimeInSeconds(instructions[0]);
 		        if (prevTime != 0) {
 		        	try {
-						Thread.sleep((int)(( currTime - prevTime) * 1000)); // sleeping fro the difference
+						Thread.sleep((int)(( currTime - prevTime) * 1000)); // sleeping for the difference
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
+
 						e.printStackTrace();
 					}
 		        }
