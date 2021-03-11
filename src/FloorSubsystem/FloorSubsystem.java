@@ -27,7 +27,7 @@ public class FloorSubsystem {
 	 * @param scheduler the scheduler
 	 * @param filePath the file path containing the input file
 	 */
-	public FloorSubsystem(int numberOfFloors, Scheduler scheduler, String filePath) {
+	public FloorSubsystem(int numberOfFloors) {
 		if (numberOfFloors <= 1) {
 			System.out.print("No need for an elevator if the building has only 1 floor");
 			System.exit(1);
