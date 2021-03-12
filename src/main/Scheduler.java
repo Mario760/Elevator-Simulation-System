@@ -58,21 +58,6 @@ public class Scheduler {
 	}
 	
 	
-	/**
-	 * This method figures out what is asking for the next task and returns the appropriate method
-	 * @param id 0 for elevator and 1 for floor
-	 * @return a byte[] array to be parsed and translated
-	 */
-	public synchronized byte[] getNextTask(int id) {
-		if (id == 1) {
-			return getNextFloorTask();
-		} else {
-			notifyAll();
-			return getNextElevatorTask();			
-		}
-		
-	}
-	
 	public synchronized byte[] getNextElevatorTask() {
 
 		while (instructionEmpty) {
