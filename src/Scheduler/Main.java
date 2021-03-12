@@ -1,5 +1,6 @@
-package main;
+package Scheduler;
 
+import ElevatorSubsystem.Elevator;
 import FloorSubsystem.FloorSubsystem;
 
 /**

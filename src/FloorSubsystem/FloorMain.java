@@ -1,7 +1,7 @@
 package FloorSubsystem;
 
-import main.Elevator;
-import main.Scheduler;
+import ElevatorSubsystem.Elevator;
+import Scheduler.Scheduler;
 
 public class FloorMain {
 

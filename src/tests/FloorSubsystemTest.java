@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import FloorSubsystem.FloorSubsystem;
-import main.Scheduler;
+import Scheduler.Scheduler;
 
 /**
  * @author Alec Jeffery

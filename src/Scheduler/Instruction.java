@@ -1,4 +1,4 @@
-package main;
+package Scheduler;
 
 import FloorSubsystem.FloorDirection;
 
