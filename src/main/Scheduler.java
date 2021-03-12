@@ -194,7 +194,7 @@ public class Scheduler {
 				}	
 			
 				try {
-					FloorSocket.send(send);
+					FloorSocket.send(send); // sending to FloorReceiver
 				} catch(IOException eee) {
 					eee.printStackTrace();
 				}
@@ -214,7 +214,7 @@ public class Scheduler {
 			}	
 		
 			try {
-				FloorSocket.send(send);
+				FloorSocket.send(send); // sending to FloorReceiver
 			} catch(IOException eee) {
 				eee.printStackTrace();
 			}
@@ -231,7 +231,7 @@ public class Scheduler {
 			}	
 		
 			try {
-				FloorSocket.send(send);
+				FloorSocket.send(send); // sending to FloorReceiver
 			} catch(IOException eee) {
 				eee.printStackTrace();
 			}
