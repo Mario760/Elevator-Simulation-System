@@ -1,5 +1,9 @@
-package main;
+package ElevatorSubsystem;
 import java.util.ArrayList;
+
+import Scheduler.FloorTask;
+import Scheduler.MotorDirection;
+import Scheduler.Scheduler;
 
 /**
  * This class is the Elevator subsystem.
@@ -115,7 +119,7 @@ public class Elevator implements Runnable {
 		System.out.println("Elevator arrived");
 		System.out.println("Opening doors... takes 3 seconds");
 
-		scheduler.reachedDepartureFloor(FloorTask.ARRIVAL);
+		scheduler.reachedDepartureFloor(FloorTask.ARRIVAL);//udp
 		// wait 9 seconds
 		try {
 			Thread.sleep(3000);

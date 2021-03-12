@@ -4,12 +4,12 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import ElevatorSubsystem.Elevator;
 import FloorSubsystem.FloorDirection;
 import FloorSubsystem.FloorSubsystem;
-import main.Elevator;
-import main.FloorTask;
-import main.Instruction;
-import main.Scheduler;
+import Scheduler.FloorTask;
+import Scheduler.Instruction;
+import Scheduler.Scheduler;
 
 /**
  * @author Alec Jeffery

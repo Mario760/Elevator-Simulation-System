@@ -1,4 +1,4 @@
-package main;
+package Scheduler;
 
 /**
  * Enum class to represent the state of the motor
