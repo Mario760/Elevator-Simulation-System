@@ -12,7 +12,7 @@ public class FloorMain {
 		Thread receiver, parser;
 		FloorSubsystem floorSubsystem = new FloorSubsystem(8);
 		receiver = new Thread(new FloorReceiver(floorSubsystem),"receiver");
-		parser = new Thread(new inputScheduler(filePath, floorSubsystem), "parser");
+		parser = new Thread(new InputScheduler(filePath, floorSubsystem), "parser");
 		receiver.start();
 		parser.start();
 		
