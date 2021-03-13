@@ -1,6 +1,12 @@
 package ElevatorSubsystem;
-import java.util.ArrayList;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
 import Scheduler.FloorTask;
 import Scheduler.MotorDirection;
 import Scheduler.Scheduler;
@@ -12,14 +18,15 @@ import Scheduler.Scheduler;
  */
 public class Elevator implements Runnable {
 
-	private Scheduler scheduler;
 	private int elevatorNum;
 	private int floorNumber; // the floor that the elevator is on
 	private ArrayList<ElevatorButton> buttons; // number of buttons/floors in the system
 	private MotorDirection motor;
 	private boolean door;
+	private DatagramSocket sendSocket, receiveSocket;
+	private DatagramPacket sendPacket, receivePacket;
 
-	public Elevator(Scheduler scheduler, int elevatorNum, int buttonsNum) {
+	public Elevator(int elevatorNum, int buttonsNum) {
 		this.elevatorNum = elevatorNum;
 		this.floorNumber = 1;
 		this.buttons = new ArrayList<>();
@@ -28,7 +35,13 @@ public class Elevator implements Runnable {
 		}
 		this.motor = MotorDirection.STOPPED;
 		this.door = false;
-		this.scheduler = scheduler;
+		try {
+			sendSocket = new DatagramSocket();
+			receiveSocket = new DatagramSocket(elevatorNum * 1111);
+		} catch (SocketException se) {
+			se.printStackTrace();
+			System.exit(1);
+		}
 
 	}
 
@@ -70,17 +83,18 @@ public class Elevator implements Runnable {
 	/**
 	 * This method is to change the motor direction and go to the destination floor
 	 * 
-	 * @param floorNum, direction 
+	 * @param floorNum, direction
 	 */
 
-	public void goToFloor(byte floorNum, byte direction) {
+	public void goToFloor(byte floorNum, byte direction, String task) {
 		// close doors
 
 		if (direction == (byte) 1) {
 			move(MotorDirection.UP);
 			// assuming it takes 3 second to travel between each floor
 			int floorsToTravel = floorNum - this.floorNumber;
-			System.out.println("Elevator moving UP to floor " + floorNum + "... takes 3 seonds each floor...");
+			System.out.println(
+					"Elevator moving UP to " + task + " floor " + floorNum + "... takes 3 seonds each floor...");
 			for (int i = 1; i <= floorsToTravel; i++) {
 				try {
 					System.out.println(".");
@@ -94,7 +108,8 @@ public class Elevator implements Runnable {
 		} else if (direction == (byte) 2) {
 			move(MotorDirection.DOWN);
 			int floorsToTravel = this.floorNumber - floorNum;
-			System.out.println("Elevator moving DOWN to floor " + floorNum + "... takes 3 seonds each floor.....");
+			System.out.println(
+					"Elevator moving DOWN to " + task + " floor " + floorNum + "... takes 3 seonds each floor.....");
 			for (int i = 1; i <= floorsToTravel; i++) {
 				try {
 					System.out.println(".");
@@ -106,20 +121,48 @@ public class Elevator implements Runnable {
 			}
 
 		}
-		move(MotorDirection.STOPPED);
-		this.floorNumber = (int) floorNum;
-		int[] data = new int[2];
-		data[0] = this.floorNumber;
-		data[1] = 0;
 
-		scheduler.putElevatorData(data);
+		// scheduler.putElevatorData(data);
+		if (task == "pickup") {
+			move(MotorDirection.PAUSED);
+		} else {
+			move(MotorDirection.STOPPED);
+		}
+		this.floorNumber = (int) floorNum;
 
 		// open door
 		this.door = true;
-		System.out.println("Elevator arrived");
+		System.out.println("Elevator arrived at " + task);
+		byte[] data = new byte[3];
+		data[0] = (byte) elevatorNum;
+		data[1] = (byte) this.floorNumber;
+		if (this.motor == MotorDirection.STOPPED) {
+			data[2] = (byte) 0;
+		} else if (this.motor == MotorDirection.PAUSED) {
+			data[2] = (byte) 1;
+		} else if (this.motor == MotorDirection.UP) {
+			data[2] = (byte) 2;
+		} else {
+			data[2] = (byte) 3;
+		}
+
+		try {
+			sendPacket = new DatagramPacket(data, data.length, InetAddress.getLocalHost(), 11);
+		} catch (UnknownHostException e1) {
+			e1.printStackTrace();
+			System.exit(1);
+		}
+
+		try {
+			sendSocket.send(sendPacket);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
 		System.out.println("Opening doors... takes 3 seconds");
 
-		scheduler.reachedDepartureFloor(FloorTask.ARRIVAL);//udp
+//		scheduler.reachedDepartureFloor(FloorTask.ARRIVAL);// udp
 		// wait 9 seconds
 		try {
 			Thread.sleep(3000);
@@ -127,7 +170,7 @@ public class Elevator implements Runnable {
 		}
 		System.out.println("Closing doors");
 		this.door = false;
-		
+
 		// moved these to run() so testing was possible without Threads
 //		scheduler.reachedDepartureFloor(FloorTask.DEPARTURE);
 //		scheduler.getElevatorData();
@@ -159,26 +202,57 @@ public class Elevator implements Runnable {
 	 */
 	@Override
 	public void run() {
+		boolean initial = true;
 
 		while (true) {
 
-			System.out.println("Sending Elevator data to scheduler " + this.floorNumber);
-			int[] data = new int[2];
-			data[0] = this.floorNumber;
-			if (this.motor == MotorDirection.STOPPED) {
-				data[1] = 0;
-			} else if (this.motor == MotorDirection.UP) {
-				data[1] = 1;
-			} else {
-				data[1] = 2;
+			if (initial == true) {
+				System.out.println("Sending Elevator " + elevatorNum + " data to scheduler: " + "[" + this.elevatorNum
+						+ ", " + this.floorNumber + ", " + motor.toString() + "]");
+				byte[] data = new byte[3];
+				data[0] = (byte) elevatorNum;
+				data[1] = (byte) floorNumber;
+				if (this.motor == MotorDirection.STOPPED) {
+					data[2] = (byte) 0;
+				} else if (this.motor == MotorDirection.UP) {
+					data[2] = (byte) 1;
+				} else {
+					data[2] = (byte) 2;
+				}
+
+				try {
+					sendPacket = new DatagramPacket(data, data.length, InetAddress.getLocalHost(), 11);
+				} catch (UnknownHostException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+
+				try {
+					sendSocket.send(sendPacket);
+
+				} catch (IOException e) {
+					e.printStackTrace();
+					System.exit(1);
+				}
+				initial = false;
 			}
-			scheduler.putElevatorData(data);
-			byte task[] = scheduler.getNextTask(0);
-			goToFloor(task[0], task[1]);
-			
+
+			byte task[] = new byte[3];
+			receivePacket = new DatagramPacket(task, task.length);
+			try {
+				// Block until a datagram is received via sendReceiveSocket.
+				receiveSocket.receive(receivePacket);
+			} catch (IOException e) {
+				e.printStackTrace();
+				System.exit(1);
+			}
+			// byte task[] = scheduler.getNextTask(0);
+			goToFloor(task[3], task[1], "pickup");
+			goToFloor(task[0], task[1], "destination");
+
 			// moved these from goToFloor() so testing was possible without Threads
-			scheduler.reachedDepartureFloor(FloorTask.DEPARTURE);
-			scheduler.getElevatorData();
+//			scheduler.reachedDepartureFloor(FloorTask.DEPARTURE);
+//			scheduler.getElevatorData();
 
 		}
 
