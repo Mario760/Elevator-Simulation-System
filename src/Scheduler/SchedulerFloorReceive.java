@@ -20,7 +20,7 @@ public class SchedulerFloorReceive implements Runnable {
 		this.scheduler = scheduler;
 		
 		try {
-			this.toFloor = new DatagramSocket(49152); 
+			this.toFloor = new DatagramSocket(49152);
 		}catch(SocketException se) {
 			se.printStackTrace();
 		}
@@ -33,7 +33,7 @@ public class SchedulerFloorReceive implements Runnable {
 			
 			byte recByte[] = new byte[7];
 			receive = new DatagramPacket(recByte, recByte.length);
-			
+			System.out.println("receiving floor instruction");
 			try {
 				toFloor.receive(receive);
 			}catch(IOException e) {

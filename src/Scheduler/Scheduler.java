@@ -23,6 +23,7 @@ public class Scheduler{
 	private FloorTask floorTask = FloorTask.NOTHING;
 	private List<Instruction> instructions;
 	private boolean instructionEmpty = true;
+	private int initializeElevator =1;
 	private DatagramPacket send;
 	private DatagramSocket FloorSocket, elevatorSocket;
 	
@@ -31,7 +32,7 @@ public class Scheduler{
 		instructions = new LinkedList<>();
 		try {
 			this.FloorSocket = new DatagramSocket();
-			elevatorSocket = new DatagramSocket(11);
+			elevatorSocket = new DatagramSocket();
 			//other datagram socket uses port 2 
 		}catch(SocketException se) {
 			se.printStackTrace();
@@ -54,6 +55,7 @@ public class Scheduler{
 				return;
 			}
 		}
+		System.out.println("something");
 		this.instructions.add(instruction);
 
 		instructionEmpty = false;
@@ -61,11 +63,11 @@ public class Scheduler{
 		
 	}
 
-	public void sendInstructionToElevator(){
+	public synchronized void sendInstructionToElevator(){
 
 		while(instructionEmpty){
 			try{
-				System.out.println("wait() elevator put instruction");
+				System.out.println("wait() floor put instruction");
 				wait();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -105,15 +107,16 @@ public class Scheduler{
 		//Current location of two elevators
 		int elevatorLoc1 = elevatorData1[1];
 		int elevatorLoc2 = elevatorData2[1];
+		System.out.println("Car 1 location:"+elevatorLoc1+" and car 2 location:"+elevatorLoc2+" floor: "+floor);
 
 		//If car1 is closer
-		if(Math.abs(floor-elevatorLoc1)>=Math.abs(floor-elevatorLoc2)){
+		if(Math.abs(floor-elevatorLoc1)<=Math.abs(floor-elevatorLoc2)){
 			return elevatorData1[0];
 		}
 		return elevatorData2[0];
 	}
 
-	public synchronized void updateInfoAndSend(int info[]){
+	public void updateInfoAndSend(int info[]){
 
 		if(info[0] == 1){
 			elevatorData1 = info;
@@ -121,22 +124,29 @@ public class Scheduler{
 			elevatorData2 = info;
 		}
 
-		if(info[2]==0){
-			sendInstructionToElevator();
-			floorTask = FloorTask.DEPARTURE;
-		}else{
-			floorTask = FloorTask.ARRIVAL;
+		System.out.println("Info array:"+info[0]+info[1]+info[2]);
+
+		floorTask = FloorTask.ARRIVAL;
+		System.out.println("updateInfo done");
+
+		if(initializeElevator>2) {
+			getNextFloorTask((byte)info[1]);
+			if (info[2] == 1) {
+				floorTask = FloorTask.DEPARTURE;
+				getNextFloorTask((byte) info[1]);
+			}
 		}
 
-		getNextFloorTask();
-		notifyAll();
+		if(info[2]==0 && initializeElevator>=2){
+			sendInstructionToElevator();
+		}
+		initializeElevator++;
 	}
 
-	
 	/**
 	 * This method determines the next floor task by using the floorTask enum
 	 */
-	public synchronized void getNextFloorTask() {
+	public synchronized void getNextFloorTask(byte elevatorData) {
 
 		while(floorTask == FloorTask.NOTHING) {
 			try {
@@ -162,8 +172,9 @@ public class Scheduler{
 		}
 
 		if (floorTask == FloorTask.ARRIVAL) {
+			System.out.println("elevatorData"+elevatorData);
 			floorTask = FloorTask.NOTHING;
-			byte[] task = {(byte) elevatorData1[0], (byte) 0}; // 0 means arrival
+			byte[] task = {elevatorData, (byte) 0}; // 0 means arrival
 			try {
 				send = new DatagramPacket(task, task.length, InetAddress.getLocalHost(), 420);
 			}catch(UnknownHostException ee) {
@@ -180,7 +191,7 @@ public class Scheduler{
 
 		} else {
 			floorTask = FloorTask.NOTHING;
-			byte[] task = {(byte) elevatorData1[0], (byte) 1}; // 1 means departure
+			byte[] task = {elevatorData, (byte) 1}; // 1 means departure
 			try {
 				send = new DatagramPacket(task, task.length, InetAddress.getLocalHost(), 420);
 			}catch(UnknownHostException ee) {
@@ -211,9 +222,9 @@ public class Scheduler{
 
 	public static void main(String[] args) {
 		Scheduler scheduler = new Scheduler();
-		Thread schedulerFloorReceive = new Thread(new SchedulerFloorReceive(scheduler));
-		Thread schedulerElevatorReceive = new Thread(new SchedulerElevatorReceive(scheduler));
-		schedulerElevatorReceive.run();
-		schedulerFloorReceive.run();
+		Thread schedulerFloorReceive = new Thread(new SchedulerFloorReceive(scheduler),"schedulerFloorReceive");
+		Thread schedulerElevatorReceive = new Thread(new SchedulerElevatorReceive(scheduler),"schedulerElevatorReceive");
+		schedulerElevatorReceive.start();
+		schedulerFloorReceive.start();
 	}
 }

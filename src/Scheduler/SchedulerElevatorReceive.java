@@ -33,6 +33,7 @@ public class SchedulerElevatorReceive implements Runnable{
             int[] info = new int[3];
             for(int i = 0; i<3; i++){
                 info[i] = tempInfo[i];
+                System.out.println(info[i]);
             }
             scheduler.updateInfoAndSend(info);
         }
