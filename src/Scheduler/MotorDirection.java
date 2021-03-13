@@ -7,5 +7,5 @@ package Scheduler;
  *
  */
 public enum MotorDirection {
-	STOPPED, UP, DOWN
+	STOPPED, PAUSED, UP, DOWN
 }
