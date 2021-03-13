@@ -1,4 +1,7 @@
 package Scheduler;
+import FloorSubsystem.FloorButton;
+import FloorSubsystem.FloorDirection;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -13,28 +16,29 @@ import java.util.*;
  *
  */
 //test
-public class Scheduler {
+public class Scheduler implements Runnable{
 	
-	private int elevatorData[];
-	private boolean elevatorEmpty = true;
+	private int elevatorData1[];
+	private int elevatorData2[];
+	private boolean elevatorEmpty1 = true;
 	private FloorTask floorTask = FloorTask.NOTHING;
-	private Instruction instruction;
+	private List<Instruction> instructions;
 	private boolean instructionEmpty = true;
 	private boolean firstTask = false;
 	private DatagramPacket send, receive;
 	private DatagramSocket FloorSocket, elevatorSocket;
 	
 	public Scheduler() {
-		
+
 		try {
-			this.FloorSocket = new DatagramSocket(); 
+			this.FloorSocket = new DatagramSocket();
+			elevatorSocket = new DatagramSocket(11);
 			//other datagram socket uses port 2 
 		}catch(SocketException se) {
 			se.printStackTrace();
 			
 		}
-		
-		
+
 	}
 	
 	
@@ -51,94 +55,161 @@ public class Scheduler {
 				return;
 			}
 		}
-		this.instruction = instruction;
+		this.instructions.add(instruction);
+
 		instructionEmpty = false;
 		notifyAll();
 		
 	}
-	
-	
-	/**
-	 * This method figures out what is asking for the next task and returns the appropriate method
-	 * @param id 0 for elevator and 1 for floor
-	 * @return a byte[] array to be parsed and translated
-	 */
-	public synchronized byte[] getNextTask(int id) {
-		if (id == 1) {
-			return getNextFloorTask();
-		} else {
-			notifyAll();
-			return getNextElevatorTask();			
-		}
-		
-	}
-	
-	public synchronized byte[] getNextElevatorTask() {
 
-		while (instructionEmpty) {
-			try {
-				System.out.println("wait() elevator get instruction ");
+	public synchronized void sendInstructionToElevator(){
+
+		while(instructionEmpty){
+			try{
+				System.out.println("wait() elevator put instruction");
 				wait();
 			} catch (InterruptedException e) {
-				return null;
+				e.printStackTrace();
 			}
 		}
-		byte elevatorTask[] = new byte[2];
-		getElevatorData();
 
-		if (!firstTask) {
-			if (this.elevatorData[1] == 0) {// if stopped
-
-				if (this.elevatorData[0] < instruction.getFloor()) {
-					elevatorTask[0] = (byte) this.instruction.getFloor();
-					elevatorTask[1] = (byte) 1; // byte 1 is direction Up
-					firstTask = true;
-					return elevatorTask;
-				}
-				if (this.elevatorData[0] > instruction.getFloor()) {
-					elevatorTask[0] = (byte) this.instruction.getFloor();
-					elevatorTask[1] = (byte) 2;// byte 2 is direction Down
-					firstTask = true;
-					return elevatorTask;
-				}
-
-			} else { // moving
-				// to be implemented next iteration
-				firstTask = true;
-				return elevatorTask;
-			}
-
-		} else {
-			if (this.elevatorData[1] == 0) {// if stopped
-				instructionEmpty = true;
-				if (this.elevatorData[0] < instruction.getCarButton()) {
-					elevatorTask[0] = (byte) this.instruction.getCarButton();
-					elevatorTask[1] = (byte) 1; // byte 1 is direction Up
-					firstTask = false;
-					return elevatorTask;
-				}
-				if (this.elevatorData[0] > instruction.getCarButton()) {
-					elevatorTask[0] = (byte) this.instruction.getCarButton();
-					elevatorTask[1] = (byte) 2;// byte 2 is direction Down
-					firstTask = false;
-					return elevatorTask;
-				}
-
-			} else { // moving
-				// to be implemented next iteration
-				firstTask = false;
-				return elevatorTask;
-			}
-			
-
+		Instruction instruction = instructions.remove(0);
+		int car = arrangeCar(instruction);
+		DatagramPacket datagramPacket;
+		//For floor direction, byte 0 is down, byte 1 is up.
+		byte direction = 0;
+		if(instruction.getFloorButton()==FloorDirection.DOWN){
+			direction = (byte) 1;
 		}
-		return elevatorTask;
+		if(instructions.isEmpty()){
+			instructionEmpty = true;
+		}
 
-	}		
+		byte info[] = {(byte)instruction.getCarButton(),direction,(byte)instruction.getFloor()};
+		try {
+			if (car == elevatorData1[0]) {
+				datagramPacket = new DatagramPacket(info, info.length, InetAddress.getLocalHost(),1111);
+				elevatorSocket.send(datagramPacket);
+			}else{
+				datagramPacket = new DatagramPacket(info, info.length,InetAddress.getLocalHost(),2222);
+				elevatorSocket.send(datagramPacket);
+			}
+		}catch(IOException e){
+			e.printStackTrace();
+		}
+
+		notifyAll();
+	}
+
+	public int arrangeCar(Instruction instruction){
+		int floor = instruction.getFloor();
+		FloorDirection direction = instruction.getFloorButton();
+		//Current location of two elevators
+		int elevatorLoc1 = elevatorData1[1];
+		int elevatorLoc2 = elevatorData2[1];
+
+		//If car1 is closer
+		if(Math.abs(floor-elevatorLoc1)>=Math.abs(floor-elevatorLoc2)){
+			return elevatorData1[0];
+		}
+		return elevatorData2[0];
+	}
+
+	public void updateElevatorInfo(){
+		byte[] byteArray = new byte[3];
+		DatagramPacket elevatorReceivePacket = new DatagramPacket(byteArray,byteArray.length);
+		try {
+			elevatorSocket.receive(elevatorReceivePacket);
+		}catch(IOException e) {
+			e.printStackTrace();
+		}
+		byte[] tempInfo =  elevatorReceivePacket.getData();
+		int[] info = new int[3];
+		for(int i = 0; i<3; i++){
+			info[i] = tempInfo[i];
+		}
+		if(info[0] == 1){
+			elevatorData1 = info;
+		}else{
+			elevatorData2 = info;
+		}
+
+		if(info[2]==0){
+			sendInstructionToElevator();
+			floorTask = FloorTask.DEPARTURE;
+		}else{
+			floorTask = FloorTask.ARRIVAL;
+		}
+
+		getNextFloorTask();
+	}
+	
+//	public synchronized byte[] getNextElevatorTask() {
+//
+//		while (instructionEmpty) {
+//			try {
+//				System.out.println("wait() elevator get instruction ");
+//				wait();
+//			} catch (InterruptedException e) {
+//				return null;
+//			}
+//		}
+//		byte elevatorTask[] = new byte[2];
+//		getElevatorData1();
+//
+//		if (!firstTask) {
+//			if (this.elevatorData1[1] == 0) {// if stopped
+//
+//				if (this.elevatorData1[0] < instruction.getFloor()) {
+//					elevatorTask[0] = (byte) this.instruction.getFloor();
+//					elevatorTask[1] = (byte) 1; // byte 1 is direction Up
+//					firstTask = true;
+//					return elevatorTask;
+//				}
+//				if (this.elevatorData1[0] > instruction.getFloor()) {
+//					elevatorTask[0] = (byte) this.instruction.getFloor();
+//					elevatorTask[1] = (byte) 2;// byte 2 is direction Down
+//					firstTask = true;
+//					return elevatorTask;
+//				}
+//
+//			} else { // moving
+//				// to be implemented next iteration
+//				firstTask = true;
+//				return elevatorTask;
+//			}
+//
+//		} else {
+//			if (this.elevatorData1[1] == 0) {// if stopped
+//				instructionEmpty = true;
+//				if (this.elevatorData1[0] < instruction.getCarButton()) {
+//					elevatorTask[0] = (byte) this.instruction.getCarButton();
+//					elevatorTask[1] = (byte) 1; // byte 1 is direction Up
+//					firstTask = false;
+//					return elevatorTask;
+//				}
+//				if (this.elevatorData1[0] > instruction.getCarButton()) {
+//					elevatorTask[0] = (byte) this.instruction.getCarButton();
+//					elevatorTask[1] = (byte) 2;// byte 2 is direction Down
+//					firstTask = false;
+//					return elevatorTask;
+//				}
+//
+//			} else { // moving
+//				// to be implemented next iteration
+//				firstTask = false;
+//				return elevatorTask;
+//			}
+//
+//
+//		}
+//		return elevatorTask;
+//
+//	}
 	
 	
 	public synchronized void putElevatorData(int[] data) {
-		while (!elevatorEmpty) {
+		while (!elevatorEmpty1) {
 			try {
 				System.out.println("wait() elevator put data ");
 				wait();
@@ -148,29 +219,11 @@ public class Scheduler {
 			}
 
 		}
-		this.elevatorData = data;
+		this.elevatorData1 = data;
 //		System.out.println("elevator put data");
-		this.elevatorEmpty = false;
+		this.elevatorEmpty1 = false;
 		notifyAll();
 		
-	}
-	
-	public synchronized int[] getElevatorData() {
-		while (elevatorEmpty) {
-			try {
-				wait();
-				System.out.println("wait() elevator get data ");
-			} catch (InterruptedException e) {
-				return null;
-			}
-
-		}
-		int[] eDataTemp = this.elevatorData;
-		elevatorEmpty = true;
-		notifyAll();
-//		System.out.println("elevator get data ");
-		return eDataTemp;
-
 	}
 
 	
@@ -191,69 +244,68 @@ public class Scheduler {
 	
 	/**
 	 * This method determines the next floor task by using the floorTask enum
-	 * @return a byte[] containing the next instruction for the floor
 	 */
 	public synchronized void getNextFloorTask() {
-		
+
 		while(floorTask == FloorTask.NOTHING) {
 			try {
 				wait();
 			} catch (InterruptedException e) {
 				byte[] failure = {(byte) 0, (byte) 0};
-				
+
 				try {
 					send = new DatagramPacket(failure, failure.length, InetAddress.getLocalHost(), 420);
 				}catch(UnknownHostException ee) {
 					ee.printStackTrace();
-					
-				}	
-			
+
+				}
+
 				try {
 					FloorSocket.send(send);
 				} catch(IOException eee) {
 					eee.printStackTrace();
 				}
-				
+
 			}
-				
+
 		}
-		
+
 		if (floorTask == FloorTask.ARRIVAL) {
 			floorTask = FloorTask.NOTHING;
-			byte[] task = {(byte) elevatorData[0], (byte) 0}; // 0 means arrival
+			byte[] task = {(byte) elevatorData1[0], (byte) 0}; // 0 means arrival
 			try {
 				send = new DatagramPacket(task, task.length, InetAddress.getLocalHost(), 420);
 			}catch(UnknownHostException ee) {
 				ee.printStackTrace();
-				
-			}	
-		
+
+			}
+
 			try {
 				FloorSocket.send(send);
 			} catch(IOException eee) {
 				eee.printStackTrace();
 			}
 			notifyAll();
-			
+
 		} else {
 			floorTask = FloorTask.NOTHING;
-			byte[] task = {(byte) elevatorData[0], (byte) 1}; // 1 means departure
+			byte[] task = {(byte) elevatorData1[0], (byte) 1}; // 1 means departure
 			try {
 				send = new DatagramPacket(task, task.length, InetAddress.getLocalHost(), 420);
 			}catch(UnknownHostException ee) {
 				ee.printStackTrace();
-				
-			}	
-		
+
+			}
+
 			try {
 				FloorSocket.send(send);
 			} catch(IOException eee) {
 				eee.printStackTrace();
 			}
 			notifyAll();
-			
+
 		}
-		
+
 	}
 	
 	/**
@@ -262,7 +314,11 @@ public class Scheduler {
 	 */
 	public void resetFloorTaskAndElevatorEmpty() {
 		this.floorTask = FloorTask.NOTHING;
-		this.elevatorEmpty = true;
+		this.elevatorEmpty1 = true;
 	}
-	
+
+	@Override
+	public void run() {
+
+	}
 }
