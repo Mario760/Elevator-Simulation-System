@@ -16,7 +16,7 @@ import java.util.*;
  *
  */
 //test
-public class Scheduler implements Runnable{
+public class Scheduler{
 	
 	private int elevatorData1[];
 	private int elevatorData2[];
@@ -61,7 +61,7 @@ public class Scheduler implements Runnable{
 		
 	}
 
-	public synchronized void sendInstructionToElevator(){
+	public void sendInstructionToElevator(){
 
 		while(instructionEmpty){
 			try{
@@ -113,19 +113,8 @@ public class Scheduler implements Runnable{
 		return elevatorData2[0];
 	}
 
-	public void updateElevatorInfo(){
-		byte[] byteArray = new byte[3];
-		DatagramPacket elevatorReceivePacket = new DatagramPacket(byteArray,byteArray.length);
-		try {
-			elevatorSocket.receive(elevatorReceivePacket);
-		}catch(IOException e) {
-			e.printStackTrace();
-		}
-		byte[] tempInfo =  elevatorReceivePacket.getData();
-		int[] info = new int[3];
-		for(int i = 0; i<3; i++){
-			info[i] = tempInfo[i];
-		}
+	public synchronized void updateInfoAndSend(int info[]){
+
 		if(info[0] == 1){
 			elevatorData1 = info;
 		}else{
@@ -140,6 +129,7 @@ public class Scheduler implements Runnable{
 		}
 
 		getNextFloorTask();
+		notifyAll();
 	}
 
 	
@@ -219,10 +209,11 @@ public class Scheduler implements Runnable{
 		elevatorData2 = new int[3];
 	}
 
-	@Override
-	public void run() {
-		while(true){
-			updateElevatorInfo();
-		}
+	public static void main(String[] args) {
+		Scheduler scheduler = new Scheduler();
+		Thread schedulerFloorReceive = new Thread(new SchedulerFloorReceive(scheduler));
+		Thread schedulerElevatorReceive = new Thread(new SchedulerElevatorReceive(scheduler));
+		schedulerElevatorReceive.run();
+		schedulerFloorReceive.run();
 	}
 }
