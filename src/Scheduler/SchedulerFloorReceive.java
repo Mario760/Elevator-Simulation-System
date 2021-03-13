@@ -40,6 +40,8 @@ public class SchedulerFloorReceive implements Runnable {
 				e.printStackTrace();
 				
 			}
+
+			byte receiveByte[] = receive.getData();
 			
 			byte checkByte[] = {(byte) 1};
 			
@@ -57,7 +59,7 @@ public class SchedulerFloorReceive implements Runnable {
 				
 			}
 			
-			parseByte(checkByte);
+			parseByte(receiveByte);
 			
 		}
 		
@@ -65,7 +67,7 @@ public class SchedulerFloorReceive implements Runnable {
 	
 	public void parseByte(byte[] input) {
 		
-		String time = (int) input[4] + ":" + (int) input[5] + ";" + input[6];;
+		String time = (int) input[4] + ":" + (int) input[5] + ":" + input[6];
 		int floor = input[0];
 		int carButton = input[2];
 		FloorDirection floorButton = FloorDirection.DOWN;
