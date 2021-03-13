@@ -27,7 +27,7 @@ public class inputScheduler implements Runnable{
 	 */
 	private double getTimeInSeconds(String time) {
 		String[] times = time.split(":");
-		if (times.length !=  4) {
+		if (times.length !=  3) {
 			System.out.println("Invalid Time\n");
 			return -1;
 		}

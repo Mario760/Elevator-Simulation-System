@@ -60,6 +60,7 @@ public class FloorReceiver implements Runnable {
 	}
 	
 	public void run() {
+		boolean valid;
 		do {
 			receivePacket = new DatagramPacket(data, data.length); // creating the receive packet
 			
@@ -70,9 +71,9 @@ public class FloorReceiver implements Runnable {
 				System.exit(1);
 			}
 			
-			handleTask(data);
+		  valid = handleTask(data);
 			
-		} while(handleTask(data)); // verifying that the received data is valid and preforming the required action
+		} while(valid); // verifying that the received data is valid and preforming the required action
 			
 		
 		

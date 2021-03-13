@@ -94,7 +94,7 @@ public class Elevator implements Runnable {
 			// assuming it takes 3 second to travel between each floor
 			int floorsToTravel = floorNum - this.floorNumber;
 			System.out.println(
-					"Elevator moving UP to " + task + " floor " + floorNum + "... takes 3 seonds each floor...");
+					"Elevator " +this.elevatorNum+ " moving UP to " + task + " floor " + floorNum + "... takes 3 seonds each floor...");
 			for (int i = 1; i <= floorsToTravel; i++) {
 				try {
 					System.out.println(".");
@@ -109,7 +109,7 @@ public class Elevator implements Runnable {
 			move(MotorDirection.DOWN);
 			int floorsToTravel = this.floorNumber - floorNum;
 			System.out.println(
-					"Elevator moving DOWN to " + task + " floor " + floorNum + "... takes 3 seonds each floor.....");
+					"Elevator "+this.elevatorNum+" moving DOWN to " + task + " floor " + floorNum + "... takes 3 seonds each floor.....");
 			for (int i = 1; i <= floorsToTravel; i++) {
 				try {
 					System.out.println(".");
@@ -247,7 +247,7 @@ public class Elevator implements Runnable {
 				System.exit(1);
 			}
 			// byte task[] = scheduler.getNextTask(0);
-			goToFloor(task[3], task[1], "pickup");
+			goToFloor(task[2], task[1], "pickup");
 			goToFloor(task[0], task[1], "destination");
 
 			// moved these from goToFloor() so testing was possible without Threads
