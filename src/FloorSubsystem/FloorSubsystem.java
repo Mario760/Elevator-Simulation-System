@@ -144,4 +144,8 @@ public class FloorSubsystem {
 			}
 		}
 	}
+	
+	public List<Floor> getFloors() {
+		return this.floors;
+	}
 }

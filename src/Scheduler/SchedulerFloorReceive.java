@@ -8,7 +8,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 
 import FloorSubsystem.FloorDirection;
-//test
+
 public class SchedulerFloorReceive implements Runnable {
 	
 	private DatagramPacket send, receive;

@@ -210,16 +210,17 @@ public class Scheduler{
 
 	}
 	
-	/**
-	 * This method is purely for testing purposes, to reset the floorTask value, so 
-	 * a Thread isn't needed to be used in the tests
+	/*
+	 * Method used only for testing purposes, to update elevatorData1 or elevatorData 2.
 	 */
-	public void resetFloorTaskAndElevatorEmpty() {
-		this.floorTask = FloorTask.NOTHING;
-		elevatorData1 = new int[3];
-		elevatorData2 = new int[3];
+	public void setElevatorData(int[] elevatorData) {
+		if(elevatorData[0] == 1) {
+			this.elevatorData1 = elevatorData;
+		} else {
+			this.elevatorData2 = elevatorData;
+		}
 	}
-
+	
 	public static void main(String[] args) {
 		Scheduler scheduler = new Scheduler();
 		Thread schedulerFloorReceive = new Thread(new SchedulerFloorReceive(scheduler),"schedulerFloorReceive");
