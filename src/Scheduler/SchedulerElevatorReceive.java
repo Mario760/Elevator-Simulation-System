@@ -5,12 +5,23 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 
+/**
+ * The type Scheduler elevator receive.
+ *
+ * @author Jiawei Ma
+ */
 public class SchedulerElevatorReceive implements Runnable{
 
     private DatagramPacket send, receive;
     private DatagramSocket elevatorSocket;
     private Scheduler scheduler;
 
+    /**
+     * Instantiates a new Scheduler elevator receive.
+     * Using socket to receive from elevators
+     *
+     * @param scheduler the scheduler
+     */
     public SchedulerElevatorReceive(Scheduler scheduler){
         this.scheduler = scheduler;
         try {
@@ -33,7 +44,6 @@ public class SchedulerElevatorReceive implements Runnable{
             int[] info = new int[3];
             for(int i = 0; i<3; i++){
                 info[i] = tempInfo[i];
-                System.out.println(info[i]);
             }
             scheduler.updateInfoAndSend(info);
         }
