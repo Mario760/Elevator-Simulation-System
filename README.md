@@ -100,7 +100,13 @@ Jiawei | Worked on Scheduler and ElevatorSubsystem.
 
 #### Program Instructions:
 
-After pulling the project from Github, run the main class in Eclipse to start the program. 
+In order to run, start the main method in each package.
+
+ElevatorSubSystem -> ElevatorSubsystem
+
+FloorSubsystem -> FloorMain
+
+Scheduler -> Scheduler
 
 There is currently no UI so all output will be in the console.
 
