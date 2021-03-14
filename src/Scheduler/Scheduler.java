@@ -12,8 +12,8 @@ import java.util.*;
 
 /**
  * This is the scheduler class that follows the mutual exclusion and condition synchronization
- * @author Peyman Tajadod & Alex Tasseron
  *
+ * @author Peyman Tajadod & Alex Tasseron & Jiawei Ma
  */
 //test
 public class Scheduler{
@@ -26,7 +26,10 @@ public class Scheduler{
 	private int initializeElevator =1;
 	private DatagramPacket send;
 	private DatagramSocket FloorSocket, elevatorSocket;
-	
+
+	/**
+	 * Instantiates a new Scheduler.
+	 */
 	public Scheduler() {
 
 		instructions = new LinkedList<>();
@@ -40,10 +43,11 @@ public class Scheduler{
 		}
 
 	}
-	
-	
+
+
 	/**
 	 * This method will be called by the FloorSubsystem to populate the instructions list
+	 *
 	 * @param instruction an Instruction
 	 */
 	public synchronized void receiveInstruction(Instruction instruction) {
@@ -55,7 +59,6 @@ public class Scheduler{
 				return;
 			}
 		}
-		System.out.println("something");
 		this.instructions.add(instruction);
 
 		instructionEmpty = false;
@@ -63,6 +66,9 @@ public class Scheduler{
 		
 	}
 
+	/**
+	 * Send instruction to elevator.
+	 */
 	public synchronized void sendInstructionToElevator(){
 
 		while(instructionEmpty){
@@ -102,6 +108,12 @@ public class Scheduler{
 		notifyAll();
 	}
 
+	/**
+	 * Arrange the nearest car to take passenger.
+	 *
+	 * @param instruction the instruction
+	 * @return the elevator number
+	 */
 	public int arrangeCar(Instruction instruction){
 		int floor = instruction.getFloor();
 		//Current location of two elevators
@@ -116,6 +128,11 @@ public class Scheduler{
 		return elevatorData2[0];
 	}
 
+	/**
+	 * Update elevator info and send instruction to elevator and floor.
+	 *
+	 * @param info the info
+	 */
 	public void updateInfoAndSend(int info[]){
 
 		if(info[0] == 1){
@@ -123,8 +140,6 @@ public class Scheduler{
 		}else{
 			elevatorData2 = info;
 		}
-
-		System.out.println("Info array:"+info[0]+info[1]+info[2]);
 
 		floorTask = FloorTask.ARRIVAL;
 		System.out.println("updateInfo done");
@@ -145,6 +160,8 @@ public class Scheduler{
 
 	/**
 	 * This method determines the next floor task by using the floorTask enum
+	 *
+	 * @param elevatorData the elevator data
 	 */
 	public synchronized void getNextFloorTask(byte elevatorData) {
 
@@ -172,7 +189,6 @@ public class Scheduler{
 		}
 
 		if (floorTask == FloorTask.ARRIVAL) {
-			System.out.println("elevatorData"+elevatorData);
 			floorTask = FloorTask.NOTHING;
 			byte[] task = {elevatorData, (byte) 0}; // 0 means arrival
 			try {
@@ -209,7 +225,12 @@ public class Scheduler{
 		}
 
 	}
-	
+
+	/**
+	 * Sets elevator data.
+	 *
+	 * @param elevatorData the elevator data
+	 */
 	/*
 	 * Method used only for testing purposes, to update elevatorData1 or elevatorData 2.
 	 */
@@ -220,7 +241,12 @@ public class Scheduler{
 			this.elevatorData2 = elevatorData;
 		}
 	}
-	
+
+	/**
+	 * The entry point of application.
+	 *
+	 * @param args the input arguments
+	 */
 	public static void main(String[] args) {
 		Scheduler scheduler = new Scheduler();
 		Thread schedulerFloorReceive = new Thread(new SchedulerFloorReceive(scheduler),"schedulerFloorReceive");
