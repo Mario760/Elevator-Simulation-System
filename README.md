@@ -120,10 +120,16 @@ Scheduler: Contains FloorTask, Instruction, MotorDirection, Scheduler, Scheduler
 
 #### Testing:
 
-All JUnit tests contained within tests package. 
+ElevatorTest: Focuses on the goToFloor method
 
+FloorSubsystemTest: Focuses on testing the handle arrival and departure methods
 
+FloorTest: Focuses on testing the Floor Constructor, and arrival & departure handlers
 
+SchedulerTest: Focuses on testing the arrangeCar method
+
+All test files are in the tests package. All tests can be ran at once by:
+Right Click "tests" package -> Run as -> JUnit Test
 
 
 
