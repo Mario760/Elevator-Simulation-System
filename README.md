@@ -86,5 +86,38 @@ SchedulerTest: Focuses on testing getNextElevatorTask, getNextFloorTask methods
 All test files are in the tests package. All tests can be ran at once by:
 Right Click "tests" package -> Run as -> JUnit Test
 
+### Iteration 3
+
+#### Work Assignments:
+
+Name | Job
+------------ | -------------
+Peyman | Worked on Scheduler and ElevatorSubsystem.
+Alex | Worked on Scheduler, FloorSubsystem, and writing tasks.
+Campbell | Worked on Scheduler, FloorSubsystem, general design tasks. 
+Alec | Designed JUnit Test Cases, handled UML, Sequence, and State Machine Diagrams.
+Jiawei | Worked on Scheduler and ElevatorSubsystem.
+
+#### Program Instructions:
+
+After pulling the project from Github, run the main class in Eclipse to start the program. 
+
+There is currently no UI so all output will be in the console.
+
+#### Packages:
+
+ElevatorSubsystem: Contains classes Elevator and ElevatorSubsystem, which handles all Elevator related UDP and threading logic. 
+
+FloorSubsystem: Contains Floor, FloorButton, FloorDirection, FloorLamp, FloorMain, FloorReceiver, FloorSubsystem, and InputScheduler. Handles Floor related UDP and threading logic.
+
+Scheduler: Contains FloorTask, Instruction, MotorDirection, Scheduler, SchedulerElevatorReceive, and SchedulerFloorReceive. Handles Scheduler related UDP and threading logic.
+
+#### Testing:
+
+All JUnit tests contained within tests package. 
+
+
+
+
 
 
