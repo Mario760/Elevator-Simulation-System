@@ -119,7 +119,7 @@ public class Elevator implements Runnable {
 				}
 
 			}
-
+ 
 		}
 
 		// scheduler.putElevatorData(data);
