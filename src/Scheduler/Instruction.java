@@ -13,13 +13,14 @@ public class Instruction {
 	private int floor;
 	private FloorDirection floorButton;
 	private int carButton;
-	//private int faultType; // currently not needed
+	private int faultType; // 0 for no fault
 	
-	public Instruction(String time, int floor, FloorDirection floorButton, int carButton) {
+	public Instruction(String time, int floor, FloorDirection floorButton, int carButton, int faultType) {
 		this.time = time;
 		this.floor = floor;
 		this.floorButton = floorButton;
 		this.carButton = carButton;
+		this.faultType = faultType;
 	}
 	
 	/**
@@ -68,6 +69,10 @@ public class Instruction {
 	 */
 	public int getCarButton() {
 		return carButton;
+	}
+	
+	public int getFaultType() {
+		return faultType;
 	}
 	
 	
