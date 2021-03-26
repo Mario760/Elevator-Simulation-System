@@ -70,13 +70,14 @@ public class SchedulerFloorReceive implements Runnable {
 		String time = (int) input[4] + ":" + (int) input[5] + ":" + input[6];
 		int floor = input[0];
 		int carButton = input[2];
+		int faultType = input[3];
 		FloorDirection floorButton = FloorDirection.DOWN;
 		
 		if(input[1] == (byte) 1) {
 			floorButton = FloorDirection.UP;
 		}
 		
-		scheduler.receiveInstruction(new Instruction(time, floor, floorButton, carButton));
+		scheduler.receiveInstruction(new Instruction(time, floor, floorButton, carButton, faultType));
 		
 	}
 	
