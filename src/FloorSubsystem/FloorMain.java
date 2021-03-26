@@ -11,17 +11,10 @@ public class FloorMain {
 		System.out.println(filePath);
 		Thread receiver, parser;
 		FloorSubsystem floorSubsystem = new FloorSubsystem(8);
-<<<<<<< Upstream, based on origin/master
-		receiver = new Thread(new FloorReceiver(floorSubsystem),"receiver");
-		parser = new Thread(new inputScheduler(filePath, floorSubsystem), "parser");
-		receiver.start();
-		parser.start();
-=======
 		receiver = new Thread(new FloorReceiver(floorSubsystem),"receiver"); // creating receiver thread
 		parser = new Thread(new InputScheduler(filePath, floorSubsystem), "parser"); // creating input parser thread
 		receiver.start(); // starting receiver
 		parser.start(); // starting parser
->>>>>>> e89cada added comments
 		
 
 	}

@@ -6,7 +6,7 @@ import java.io.*;
  * @author Campbell de Winter
  *
  */
-public class inputScheduler implements Runnable{
+public class InputScheduler implements Runnable{
 	private String filepath;
 	private FloorSubsystem floorSubsystem;
 	
@@ -15,7 +15,7 @@ public class inputScheduler implements Runnable{
 	 * @param filepath the path of the file to be parsed
 	 * @param floorSubsystem the object this thread will perform actions on
 	 */
-	public inputScheduler(String filepath, FloorSubsystem floorSubsystem) {
+	public InputScheduler(String filepath, FloorSubsystem floorSubsystem) {
 		this.filepath = filepath;
 		this.floorSubsystem = floorSubsystem;
 	}
@@ -53,11 +53,7 @@ public class inputScheduler implements Runnable{
 		        double currTime = getTimeInSeconds(instructions[0]);
 		        if (prevTime != 0) {
 		        	try {
-<<<<<<< Upstream, based on origin/master
-						Thread.sleep((int)(( currTime - prevTime) * 1000)); // sleeping from the difference
-=======
 						Thread.sleep((int)(( currTime - prevTime) * 1000)); // sleeping for the difference
->>>>>>> cce0244 Changed the ports
 					} catch (InterruptedException e) {
 
 						e.printStackTrace();
