@@ -89,17 +89,18 @@ public class FloorSubsystem {
 	 * @param floor the floor the button was pressed on
 	 * @param direction the direction if the button (Up/Down)
 	 * @param carButton the button pressed inside the elevator
+	 * @param faultType the type of fault represented by an int (0 for nothing, Java does not allow for optional params)
 	 */
-	public synchronized void sendInstruction(String time, int floor, String direction, int carButton) {
+	public synchronized void sendInstruction(String time, int floor, FloorDirection direction, int carButton, int faultType) {
 		byte[] instruction = new byte[7];
 		instruction[0] = (byte) floor;
-		if (direction == "Up") {
+		if (direction.ordinal() == 0) { // the first option (ordinal 0) is up
 			instruction[1] = (byte) 1; 
 		} else {
 			instruction[1] = (byte) 0; // defaulting to Down
 		}
 		instruction[2] = (byte) carButton;
-		instruction[3] = (byte) 0; // Faults are not implemented this iteration;
+		instruction[3] = (byte) faultType; // Faults are not implemented this iteration;
 		String[] timeArray = time.split(":"); // 3 numbers separated by 2 ':'
 		for (int i = 0; i < timeArray.length; i++) {
 			instruction[4 + i] = (byte) (Double.parseDouble(timeArray[i])); // the last # is a double
