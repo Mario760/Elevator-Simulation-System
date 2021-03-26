@@ -55,7 +55,6 @@ public class InputScheduler implements Runnable{
 		        	try {
 						Thread.sleep((int)(( currTime - prevTime) * 1000)); // sleeping for the difference
 					} catch (InterruptedException e) {
-
 						e.printStackTrace();
 					}
 		        }
@@ -66,7 +65,7 @@ public class InputScheduler implements Runnable{
 		        	direction = FloorDirection.UP;
 		        }
 		        floorSubsystem.pressButton(floor, direction);
-		        floorSubsystem.sendInstruction(instructions[0], Integer.parseInt(instructions[1]), instructions[2], Integer.parseInt(instructions[3]));   
+		        floorSubsystem.sendInstruction(instructions[0], Integer.parseInt(instructions[1]), direction, Integer.parseInt(instructions[3]), Integer.parseInt(instructions[4]));   
 		    }
 		    lineReader.close(); // closing the file
 		} catch (IOException e) { // safe coding practices only
