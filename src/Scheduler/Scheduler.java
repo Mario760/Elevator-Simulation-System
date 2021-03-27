@@ -144,38 +144,44 @@ public class Scheduler{
 	 */
 	public void updateInfoAndSend(int info[]){
 
-        if(info[0] == 1){
-            elevatorData1 = info;
-            if(info[1]==-1){
-                e1Available = false;
-                sendInstructionToElevator();
-                return;
-            }
-        }else{
-            elevatorData2 = info;
-            if(info[1]==-1){
-                e2Available = false;
-                sendInstructionToElevator();
-                return;
-            }
-        }
 
-        floorTask = FloorTask.ARRIVAL;
-        System.out.println("updateInfo done");
+		if(info[0] == 1){
+			elevatorData1 = info;
+			if(info[1]==-1){
+				e1Available = false;
+				sendInstructionToElevator();
+				return;
+			}
+		}else{
+			elevatorData2 = info;
+			if(info[1]==-1){
+				e2Available = false;
+				sendInstructionToElevator();
+				return;
+			}
+		}
 
-        if(initializeElevator>2) {
-            getNextFloorTask((byte)info[1]);
-            if (info[2] == 1) {
-                floorTask = FloorTask.DEPARTURE;
-                getNextFloorTask((byte) info[1]);
-            }
-        }
+		floorTask = FloorTask.ARRIVAL;
+		System.out.println("updateInfo done");
 
-        if(info[2]==0 && initializeElevator>=2){
-            sendInstructionToElevator();
-        }
-        initializeElevator++;
-    }
+		if(initializeElevator>2) {
+			getNextFloorTask((byte)info[1]);
+			if (info[2] == 1) {
+				floorTask = FloorTask.DEPARTURE;
+				getNextFloorTask((byte) info[1]);
+			}
+			//If received packet from elevator about door fault issue.
+			if(info[2] == -2){
+				floorTask = FloorTask.DOORFAULT;
+				getNextFloorTask((byte) info[1]);
+			}
+		}
+
+		if(info[2]==0 && initializeElevator>=2){
+			sendInstructionToElevator();
+		}
+		initializeElevator++;
+	}
 
 	/**
 	 * This method determines the next floor task by using the floorTask enum
@@ -214,7 +220,6 @@ public class Scheduler{
 				send = new DatagramPacket(task, task.length, InetAddress.getLocalHost(), 420);
 			}catch(UnknownHostException ee) {
 				ee.printStackTrace();
-
 			}
 
 			try {
@@ -224,14 +229,31 @@ public class Scheduler{
 			}
 			notifyAll();
 
-		} else {
+
+		} else if(floorTask == FloorTask.DOORFAULT){
+			floorTask = FloorTask.NOTHING;
+			byte[] task = {elevatorData,(byte) -1};//-1 means door fault
+			try {
+				send = new DatagramPacket(task, task.length, InetAddress.getLocalHost(), 420);
+			}catch(UnknownHostException ee) {
+				ee.printStackTrace();
+			}
+
+			try {
+				FloorSocket.send(send);
+			} catch(IOException eee) {
+				eee.printStackTrace();
+			}
+			notifyAll();
+
+
+		} else{
 			floorTask = FloorTask.NOTHING;
 			byte[] task = {elevatorData, (byte) 1}; // 1 means departure
 			try {
 				send = new DatagramPacket(task, task.length, InetAddress.getLocalHost(), 420);
 			}catch(UnknownHostException ee) {
 				ee.printStackTrace();
-
 			}
 
 			try {
