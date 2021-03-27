@@ -6,7 +6,7 @@ import java.io.*;
  * @author Campbell de Winter
  *
  */
-public class inputScheduler implements Runnable{
+public class InputScheduler implements Runnable{
 	private String filepath;
 	private FloorSubsystem floorSubsystem;
 	
@@ -15,7 +15,7 @@ public class inputScheduler implements Runnable{
 	 * @param filepath the path of the file to be parsed
 	 * @param floorSubsystem the object this thread will perform actions on
 	 */
-	public inputScheduler(String filepath, FloorSubsystem floorSubsystem) {
+	public InputScheduler(String filepath, FloorSubsystem floorSubsystem) {
 		this.filepath = filepath;
 		this.floorSubsystem = floorSubsystem;
 	}
@@ -53,9 +53,8 @@ public class inputScheduler implements Runnable{
 		        double currTime = getTimeInSeconds(instructions[0]);
 		        if (prevTime != 0) {
 		        	try {
-						Thread.sleep((int)(( currTime - prevTime) * 1000)); // sleeping from the difference
+						Thread.sleep((int)(( currTime - prevTime) * 1000)); // sleeping for the difference
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 		        }
@@ -66,7 +65,7 @@ public class inputScheduler implements Runnable{
 		        	direction = FloorDirection.UP;
 		        }
 		        floorSubsystem.pressButton(floor, direction);
-		        floorSubsystem.sendInstruction(instructions[0], Integer.parseInt(instructions[1]), instructions[2], Integer.parseInt(instructions[3]));   
+		        floorSubsystem.sendInstruction(instructions[0], Integer.parseInt(instructions[1]), direction, Integer.parseInt(instructions[3]), Integer.parseInt(instructions[4]));   
 		    }
 		    lineReader.close(); // closing the file
 		} catch (IOException e) { // safe coding practices only
