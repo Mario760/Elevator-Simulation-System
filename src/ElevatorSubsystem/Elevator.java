@@ -86,20 +86,30 @@ public class Elevator implements Runnable {
 	 * @param floorNum, direction
 	 */
 
-	public void goToFloor(byte floorNum, byte direction, String task) {
+	public void goToFloor(byte floorNum, byte direction, String task, byte fault) {
 		// close doors
-
+		long delay = floorNum * 3000 + 1000;
+		if(fault == (byte)1) {
+			delay = floorNum * 2000;
+		}
 		if (direction == (byte) 1) {
 			move(MotorDirection.UP);
 			// assuming it takes 3 second to travel between each floor
 			int floorsToTravel = floorNum - this.floorNumber;
 			System.out.println(
-					"Elevator " +this.elevatorNum+ " moving UP to " + task + " floor " + floorNum + "... takes 3 seonds each floor...");
+					"Elevator moving UP to " + task + " floor " + floorNum + "... takes 3 seonds each floor...");
+
+			long start = System.currentTimeMillis();
+			
 			for (int i = 1; i <= floorsToTravel; i++) {
 				try {
 					System.out.println(".");
 					System.out.println(this.floorNumber + i);
 					Thread.sleep(3000);
+					if((System.currentTimeMillis() - start) > delay){
+						Thread.currentThread().interrupt();
+						System.out.println("Fault 1 occured (timer went off). Shutting down elevator " + elevatorNum);
+					}
 				} catch (InterruptedException e) {
 				}
 
@@ -110,11 +120,18 @@ public class Elevator implements Runnable {
 			int floorsToTravel = this.floorNumber - floorNum;
 			System.out.println(
 					"Elevator "+this.elevatorNum+" moving DOWN to " + task + " floor " + floorNum + "... takes 3 seonds each floor.....");
+			
+			long start = System.currentTimeMillis();
+			
 			for (int i = 1; i <= floorsToTravel; i++) {
 				try {
 					System.out.println(".");
 					System.out.println(this.floorNumber + i);
 					Thread.sleep(3000);
+					if((System.currentTimeMillis() - start) > delay){
+						Thread.currentThread().interrupt();
+						System.out.println("Fault 1 occured (timer went off). Shutting down elevator " + elevatorNum);
+					}
 				} catch (InterruptedException e) {
 				}
 
@@ -247,8 +264,8 @@ public class Elevator implements Runnable {
 				System.exit(1);
 			}
 			// byte task[] = scheduler.getNextTask(0);
-			goToFloor(task[2], task[1], "pickup");
-			goToFloor(task[0], task[1], "destination");
+			goToFloor(task[2], task[1], "pickup", task[3]);
+			goToFloor(task[0], task[1], "destination", task[3]);
 
 			// moved these from goToFloor() so testing was possible without Threads
 //			scheduler.reachedDepartureFloor(FloorTask.DEPARTURE);
