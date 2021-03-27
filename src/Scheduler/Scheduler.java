@@ -26,6 +26,7 @@ public class Scheduler{
 	private int initializeElevator =1;
 	private DatagramPacket send;
 	private DatagramSocket FloorSocket, elevatorSocket;
+	private boolean e1Available = true, e2Available = true;
 
 	/**
 	 * Instantiates a new Scheduler.
@@ -122,10 +123,18 @@ public class Scheduler{
 		System.out.println("Car 1 location:"+elevatorLoc1+" and car 2 location:"+elevatorLoc2+" floor: "+floor);
 
 		//If car1 is closer
-		if(Math.abs(floor-elevatorLoc1)<=Math.abs(floor-elevatorLoc2)){
+		if(!e1Available && e2Available){
+			return elevatorData2[0];
+		}
+		else if(e1Available && !e2Available){
 			return elevatorData1[0];
 		}
-		return elevatorData2[0];
+		else{
+			if(Math.abs(floor-elevatorLoc1)<=Math.abs(floor-elevatorLoc2)){
+				return elevatorData1[0];
+			}
+			return elevatorData2[0];
+		}
 	}
 
 	/**
@@ -137,8 +146,14 @@ public class Scheduler{
 
 		if(info[0] == 1){
 			elevatorData1 = info;
+			if(info[1]==-1){
+				e1Available = false;
+			}
 		}else{
 			elevatorData2 = info;
+			if(info[1]==-1){
+				e2Available = false;
+			}
 		}
 
 		floorTask = FloorTask.ARRIVAL;
@@ -152,7 +167,10 @@ public class Scheduler{
 			}
 		}
 
-		if(info[2]==0 && initializeElevator>=2){
+		if(info[1]==-1){
+			sendInstructionToElevator();
+		}
+		else if(info[2]==0 && initializeElevator>=2){
 			sendInstructionToElevator();
 		}
 		initializeElevator++;
