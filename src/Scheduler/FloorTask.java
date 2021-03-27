@@ -1,5 +1,5 @@
 package Scheduler;
 
 public enum FloorTask {
-	NOTHING, BUTTON, ARRIVAL, DEPARTURE
+	NOTHING, BUTTON, ARRIVAL, DEPARTURE,DOORFAULT
 }
