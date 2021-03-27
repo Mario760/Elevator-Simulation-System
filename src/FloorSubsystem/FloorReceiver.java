@@ -48,6 +48,9 @@ public class FloorReceiver implements Runnable {
 		}
 		int floor = (int) task[0];
 		switch (task[1]) {
+		case (byte) -1:
+			System.out.println("Door fault occured attempting to reclose the door");
+			floorSubsystem.handleDeparture(floor); // door didnt close so try again
 		case (byte) 0: // elevator has arrived
 			floorSubsystem.handleArrival(floor);
 			break;
