@@ -96,13 +96,15 @@ public class Elevator implements Runnable {
 		if (fault == (byte) 1) {
 			delay = 2000;
 		}
+
 		if (direction == (byte) 1) {
 			move(MotorDirection.UP);
 			// assuming it takes 3 second to travel between each floor
 			int floorsToTravel = floorNum - this.floorNumber;
 			System.out.println("Elevator " + this.elevatorNum + " moving UP to " + task + " floor " + floorNum
 					+ "... takes 3 seonds each floor...");
-
+			
+			//timer for fault 1 case
 			long start = System.currentTimeMillis();
 
 			for (int i = 1; i <= floorsToTravel; i++) {
@@ -112,10 +114,10 @@ public class Elevator implements Runnable {
 					Thread.sleep(3000);
 					if ((System.currentTimeMillis() - start) > delay) {
 						running = false;
-						System.out.println("Fault 1 occured (timer went off). Shutting down elevator " + elevatorNum);
+						System.out.println("!!!Fault 1 occured (timer went off). Shutting down elevator " + elevatorNum +"!!!\n");
 						data[1] = -1;
 						data[2] = -1;
-						try {
+						try {//sending a packet to notify scheduler about this fault and elevator shutdown
 							sendPacket = new DatagramPacket(data, data.length, InetAddress.getLocalHost(), 11);
 						} catch (UnknownHostException e1) {
 							e1.printStackTrace();
@@ -151,7 +153,7 @@ public class Elevator implements Runnable {
 					Thread.sleep(3000);
 					if ((System.currentTimeMillis() - start) > delay) {
 						running = false;
-						System.out.println("Fault 1 occured (timer went off). Shutting down elevator " + elevatorNum);
+						System.out.println("!!!Fault 1 occured (timer went off). Shutting down elevator " + elevatorNum +"!!!\n");
 						data[1] = -1;
 						data[2] = -1;
 						try {
@@ -222,7 +224,28 @@ public class Elevator implements Runnable {
 			Thread.sleep(3000);
 		} catch (InterruptedException e) {
 		}
+
 		System.out.println("Closing doors");
+		if(fault==(byte) 2 ) {
+			System.out.println("!!!Fault 2 occured (Door is not closed). Trying again... " + elevatorNum +"!!!\n");
+			data[1] = (byte)floorNum;
+			data[2] = -2;
+			try {//sending a packet to scheduler so it would notify the floor doors
+				sendPacket = new DatagramPacket(data, data.length, InetAddress.getLocalHost(), 11);
+			} catch (UnknownHostException e1) {
+				e1.printStackTrace();
+				System.exit(1);
+			}
+
+			try {
+				sendSocket.send(sendPacket);
+
+			} catch (IOException e) {
+				e.printStackTrace();
+				System.exit(1);
+			}
+			System.out.println("Closing doors again...");
+		}
 		this.door = false;
 
 
@@ -303,9 +326,6 @@ public class Elevator implements Runnable {
 				goToFloor(task[0], task[1], "destination", task[3]);
 			}
 
-			// moved these from goToFloor() so testing was possible without Threads
-//			scheduler.reachedDepartureFloor(FloorTask.DEPARTURE);
-//			scheduler.getElevatorData();
 
 		}
 

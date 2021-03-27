@@ -144,37 +144,38 @@ public class Scheduler{
 	 */
 	public void updateInfoAndSend(int info[]){
 
-		if(info[0] == 1){
-			elevatorData1 = info;
-			if(info[1]==-1){
-				e1Available = false;
-			}
-		}else{
-			elevatorData2 = info;
-			if(info[1]==-1){
-				e2Available = false;
-			}
-		}
+        if(info[0] == 1){
+            elevatorData1 = info;
+            if(info[1]==-1){
+                e1Available = false;
+                sendInstructionToElevator();
+                return;
+            }
+        }else{
+            elevatorData2 = info;
+            if(info[1]==-1){
+                e2Available = false;
+                sendInstructionToElevator();
+                return;
+            }
+        }
 
-		floorTask = FloorTask.ARRIVAL;
-		System.out.println("updateInfo done");
+        floorTask = FloorTask.ARRIVAL;
+        System.out.println("updateInfo done");
 
-		if(initializeElevator>2) {
-			getNextFloorTask((byte)info[1]);
-			if (info[2] == 1) {
-				floorTask = FloorTask.DEPARTURE;
-				getNextFloorTask((byte) info[1]);
-			}
-		}
+        if(initializeElevator>2) {
+            getNextFloorTask((byte)info[1]);
+            if (info[2] == 1) {
+                floorTask = FloorTask.DEPARTURE;
+                getNextFloorTask((byte) info[1]);
+            }
+        }
 
-		if(info[1]==-1){
-			sendInstructionToElevator();
-		}
-		else if(info[2]==0 && initializeElevator>=2){
-			sendInstructionToElevator();
-		}
-		initializeElevator++;
-	}
+        if(info[2]==0 && initializeElevator>=2){
+            sendInstructionToElevator();
+        }
+        initializeElevator++;
+    }
 
 	/**
 	 * This method determines the next floor task by using the floorTask enum
