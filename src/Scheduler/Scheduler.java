@@ -92,7 +92,7 @@ public class Scheduler{
 			instructionEmpty = true;
 		}
 
-		byte info[] = {(byte)instruction.getCarButton(),direction,(byte)instruction.getFloor()};
+		byte info[] = {(byte)instruction.getCarButton(),direction,(byte)instruction.getFloor(),(byte)instruction.getFaultType()};
 		try {
 			if (car == elevatorData1[0]) {
 				datagramPacket = new DatagramPacket(info, info.length, InetAddress.getLocalHost(),1111);
