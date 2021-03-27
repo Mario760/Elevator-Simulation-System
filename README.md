@@ -131,5 +131,51 @@ SchedulerTest: Focuses on testing the arrangeCar method
 All test files are in the tests package. All tests can be ran at once by:
 Right Click "tests" package -> Run as -> JUnit Test
 
+### Iteration 4 (WIP)
+
+#### Work Assignments:
+
+Name | Job
+------------ | -------------
+Peyman | 
+Alex | 
+Campbell | 
+Alec | 
+Jiawei | 
+
+#### Program Instructions:
+
+In order to run, start the main method in each package.
+
+ElevatorSubSystem -> ElevatorSubsystem
+
+FloorSubsystem -> FloorMain
+
+Scheduler -> Scheduler
+
+There is currently no UI so all output will be in the console.
+
+#### Packages:
+
+ElevatorSubsystem: Contains classes Elevator and ElevatorSubsystem, which handles all Elevator related UDP and threading logic. 
+
+FloorSubsystem: Contains Floor, FloorButton, FloorDirection, FloorLamp, FloorMain, FloorReceiver, FloorSubsystem, and InputScheduler. Handles Floor related UDP and threading logic.
+
+Scheduler: Contains FloorTask, Instruction, MotorDirection, Scheduler, SchedulerElevatorReceive, and SchedulerFloorReceive. Handles Scheduler related UDP and threading logic.
+
+#### Testing:
+
+ElevatorTest: 
+
+FloorSubsystemTest: 
+
+FloorTest: 
+
+SchedulerTest: 
+
+All test files are in the tests package. All tests can be ran at once by:
+Right Click "tests" package -> Run as -> JUnit Test
+
+
 
 
