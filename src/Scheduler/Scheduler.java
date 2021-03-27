@@ -144,6 +144,7 @@ public class Scheduler{
 	 */
 	public void updateInfoAndSend(int info[]){
 
+
 		if(info[0] == 1){
 			elevatorData1 = info;
 			if(info[1]==-1){
