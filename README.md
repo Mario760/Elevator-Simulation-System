@@ -137,11 +137,11 @@ Right Click "tests" package -> Run as -> JUnit Test
 
 Name | Job
 ------------ | -------------
-Peyman | 
-Alex | 
-Campbell | 
-Alec | 
-Jiawei | 
+Peyman | Worked on Scheduler and ElevatorSubsystem.
+Alex | FloorSubsystem, updated README.md. 
+Campbell | Worked on Scheduler, FloorSubsystem, general design tasks.  
+Alec | Designed JUnit Test Cases, handled UML, Sequence, and State Machine Diagrams.
+Jiawei | Worked on Scheduler and ElevatorSubsystem.
 
 #### Program Instructions:
 
@@ -154,6 +154,8 @@ FloorSubsystem -> FloorMain
 Scheduler -> Scheduler
 
 There is currently no UI so all output will be in the console.
+
+Start Order: Scheduler, Elevator, Floor
 
 #### Packages:
 
@@ -175,7 +177,3 @@ SchedulerTest:
 
 All test files are in the tests package. All tests can be ran at once by:
 Right Click "tests" package -> Run as -> JUnit Test
-
-
-
-
