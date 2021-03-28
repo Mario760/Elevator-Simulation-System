@@ -56,6 +56,15 @@ public class Elevator implements Runnable {
 	public int getElevatorNum() {
 		return this.elevatorNum;
 	}
+	
+	/**
+	 * This method is to get the state of running
+	 * 
+	 * @return
+	 */
+	public boolean getRunning() {
+		return this.running;
+	}
 
 	/**
 	 * This method is to change the direction of the elevator or make it stop
