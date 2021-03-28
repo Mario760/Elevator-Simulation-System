@@ -22,7 +22,7 @@ public class SchedulerTest {
 	@Before
 	public void setUp() throws Exception {		
 		scheduler = new Scheduler();
-		testInstruction = new Instruction("14:14:14.0", 3, FloorDirection.UP, 4);
+		testInstruction = new Instruction("14:14:14.0", 3, FloorDirection.UP, 4, 0);
 	}
 	
 	@Test
@@ -35,7 +35,7 @@ public class SchedulerTest {
 		scheduler.setElevatorData(testElevatorData1);
 		scheduler.setElevatorData(testElevatorData2);
 		
-		assertEquals(scheduler.arrangeCar(testInstruction), 1);
+		assertEquals(scheduler.arrangeCar(testInstruction), 2);
 	}
 	
 }
