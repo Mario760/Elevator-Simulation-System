@@ -117,7 +117,7 @@ public class FloorSubsystem {
 		 * sending a packet and then waiting for a packet to confirm that the original packet was received
 		 */
 		try {
-			instructionSocket.setSoTimeout(1000); // setting a timeout, if it fails to receive it will send again
+			instructionSocket.setSoTimeout(100000); // setting a timeout, if it fails to receive it will send again
 		} catch (SocketException e) {
 			e.printStackTrace();
 		} 
@@ -138,7 +138,7 @@ public class FloorSubsystem {
 				instructionSocket.receive(receivePacket);
 				done = true; // if a anything comes back then we know the message was received
 			} catch (SocketTimeoutException e) {
-				continue; // repeat the while if nothing is received after 1 second
+				continue;// repeat the while if nothing is received after 1 second
 			} catch (IOException e) {
 				e.printStackTrace();
 				System.exit(1);

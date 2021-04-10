@@ -75,5 +75,7 @@ public class Instruction {
 		return faultType;
 	}
 	
-	
+	public void setFaultType(int faultType){
+		this.faultType = faultType;
+	}
 }
