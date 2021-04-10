@@ -61,7 +61,7 @@ public class InputScheduler implements Runnable{
 		        prevTime = currTime;
 		        int floor = Integer.parseInt(instructions[1]);
 		        FloorDirection direction = FloorDirection.DOWN;
-		        if (instructions[2] == "Up") {
+		        if (instructions[2].equals("Up")) {
 		        	direction = FloorDirection.UP;
 		        }
 		        floorSubsystem.pressButton(floor, direction);

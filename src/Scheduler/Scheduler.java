@@ -17,16 +17,19 @@ import java.util.*;
  */
 //test
 public class Scheduler{
-	
+
 	private int elevatorData1[];
 	private int elevatorData2[];
+	private int elevatorData3[];
+	private int elevatorData4[];
 	private FloorTask floorTask = FloorTask.NOTHING;
 	private List<Instruction> instructions;
 	private boolean instructionEmpty = true;
 	private int initializeElevator =1;
 	private DatagramPacket send;
 	private DatagramSocket FloorSocket, elevatorSocket;
-	private boolean e1Available = true, e2Available = true;
+	private Instruction instruction;
+	private boolean e1Available = true, e2Available = true, e3Available = true, e4Available = true;
 
 	/**
 	 * Instantiates a new Scheduler.
@@ -37,10 +40,10 @@ public class Scheduler{
 		try {
 			this.FloorSocket = new DatagramSocket();
 			elevatorSocket = new DatagramSocket();
-			//other datagram socket uses port 2 
+			//other datagram socket uses port 2
 		}catch(SocketException se) {
 			se.printStackTrace();
-			
+
 		}
 
 	}
@@ -64,30 +67,33 @@ public class Scheduler{
 
 		instructionEmpty = false;
 		notifyAll();
-		
+
 	}
 
 	/**
 	 * Send instruction to elevator.
 	 */
-	public synchronized void sendInstructionToElevator(){
+	public synchronized void sendInstructionToElevator(int fault){
 
-		while(instructionEmpty){
-			try{
-				System.out.println("wait() floor put instruction");
-				wait();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+		if(fault!=-1) {
+			while (instructionEmpty) {
+				try {
+					System.out.println("wait() floor put instruction");
+					wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
+			instruction = instructions.remove(0);
+		}else{
+			instruction.setFaultType(0);
 		}
-
-		Instruction instruction = instructions.remove(0);
 		int car = arrangeCar(instruction);
 		DatagramPacket datagramPacket;
-		//For floor direction, byte 0 is down, byte 1 is up.
-		byte direction = 0;
+		//For floor direction, byte 2 is down, byte 1 is up.
+		byte direction = 1;
 		if(instruction.getFloorButton()==FloorDirection.DOWN){
-			direction = (byte) 1;
+			direction = (byte) 2;
 		}
 		if(instructions.isEmpty()){
 			instructionEmpty = true;
@@ -98,8 +104,14 @@ public class Scheduler{
 			if (car == elevatorData1[0]) {
 				datagramPacket = new DatagramPacket(info, info.length, InetAddress.getLocalHost(),1111);
 				elevatorSocket.send(datagramPacket);
-			}else{
+			}else if (car == elevatorData2[0]){
 				datagramPacket = new DatagramPacket(info, info.length,InetAddress.getLocalHost(),2222);
+				elevatorSocket.send(datagramPacket);
+			}else if (car == elevatorData3[0]){
+				datagramPacket = new DatagramPacket(info, info.length,InetAddress.getLocalHost(),3333);
+				elevatorSocket.send(datagramPacket);
+			}else{
+				datagramPacket = new DatagramPacket(info, info.length,InetAddress.getLocalHost(),4444);
 				elevatorSocket.send(datagramPacket);
 			}
 		}catch(IOException e){
@@ -120,21 +132,32 @@ public class Scheduler{
 		//Current location of two elevators
 		int elevatorLoc1 = elevatorData1[1];
 		int elevatorLoc2 = elevatorData2[1];
-		System.out.println("Car 1 location:"+elevatorLoc1+" and car 2 location:"+elevatorLoc2+" floor: "+floor);
+		int elevatorLoc3 = elevatorData3[1];
+		int elevatorLoc4 = elevatorData4[1];
+		HashMap<Integer,Integer> locations = new HashMap<>();
+		locations.put(elevatorData1[0],elevatorLoc1);
+		locations.put(elevatorData2[0],elevatorLoc2);
+		locations.put(elevatorData3[0],elevatorLoc3);
+		locations.put(elevatorData4[0],elevatorLoc4);
 
-		//If car1 is closer
-		if(!e1Available && e2Available){
-			return elevatorData2[0];
-		}
-		else if(e1Available && !e2Available){
-			return elevatorData1[0];
-		}
-		else{
-			if(Math.abs(floor-elevatorLoc1)<=Math.abs(floor-elevatorLoc2)){
-				return elevatorData1[0];
+
+		HashMap<Integer,Boolean> availability = new HashMap<>();
+		availability.put(elevatorData1[0],e1Available);
+		availability.put(elevatorData2[0],e2Available);
+		availability.put(elevatorData3[0],e3Available);
+		availability.put(elevatorData4[0],e4Available);
+
+		int closestCar = -1;
+		int minDistance=22;
+		for(int i : availability.keySet()){
+			if(!availability.get(i)) continue;
+			int distance = Math.abs(floor-locations.get(i));
+			if(distance<minDistance){
+				closestCar = i;
+				minDistance = distance;
 			}
-			return elevatorData2[0];
 		}
+		return closestCar;
 	}
 
 	/**
@@ -142,21 +165,34 @@ public class Scheduler{
 	 *
 	 * @param info the info
 	 */
-	public void updateInfoAndSend(int info[]){
-
-
+	public  void updateInfoAndSend(int info[]){
 		if(info[0] == 1){
 			elevatorData1 = info;
 			if(info[1]==-1){
 				e1Available = false;
-				sendInstructionToElevator();
+				sendInstructionToElevator(-1);
 				return;
 			}
-		}else{
+		}else if(info[0]==2){
 			elevatorData2 = info;
 			if(info[1]==-1){
 				e2Available = false;
-				sendInstructionToElevator();
+				sendInstructionToElevator(-1);
+				return;
+			}
+		}else if(info[0]==3){
+			elevatorData3 = info;
+			if(info[1]==-1){
+				e3Available = false;
+				sendInstructionToElevator(-1);
+				return;
+			}
+		}
+		else if(info[0]==4){
+			elevatorData4 = info;
+			if(info[1]==-1){
+				e4Available = false;
+				sendInstructionToElevator(-1);
 				return;
 			}
 		}
@@ -164,7 +200,7 @@ public class Scheduler{
 		floorTask = FloorTask.ARRIVAL;
 		System.out.println("updateInfo done");
 
-		if(initializeElevator>2) {
+		if(initializeElevator>4) {
 			getNextFloorTask((byte)info[1]);
 			if (info[2] == 1) {
 				floorTask = FloorTask.DEPARTURE;
@@ -177,8 +213,8 @@ public class Scheduler{
 			}
 		}
 
-		if(info[2]==0 && initializeElevator>=2){
-			sendInstructionToElevator();
+		if(info[2]==0 && initializeElevator>=4){
+			sendInstructionToElevator(0);
 		}
 		initializeElevator++;
 	}
@@ -273,13 +309,17 @@ public class Scheduler{
 	 * @param elevatorData the elevator data
 	 */
 	/*
-	 * Method used only for testing purposes, to update elevatorData1 or elevatorData 2.
+	 * Method used only for testing purposes, to update elevatorData1 or elevatorData 2 ,3,4.
 	 */
 	public void setElevatorData(int[] elevatorData) {
 		if(elevatorData[0] == 1) {
 			this.elevatorData1 = elevatorData;
-		} else {
+		} else if(elevatorData[0] == 2){
 			this.elevatorData2 = elevatorData;
+		}else if(elevatorData[0] == 3){
+			this.elevatorData3 = elevatorData;
+		}else if(elevatorData[0] == 4){
+			this.elevatorData4 = elevatorData;
 		}
 	}
 

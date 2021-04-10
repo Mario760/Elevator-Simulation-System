@@ -76,9 +76,9 @@ public class SchedulerFloorReceive implements Runnable {
 		if(input[1] == (byte) 1) {
 			floorButton = FloorDirection.UP;
 		}
-		
+
+
 		scheduler.receiveInstruction(new Instruction(time, floor, floorButton, carButton, faultType));
-		
 	}
 	
 

@@ -99,18 +99,18 @@ public class Elevator implements Runnable {
 	 */
 
 	public void goToFloor(byte floorNum, byte direction, String task, byte fault) {
-
 		data[0] = (byte) elevatorNum;
-		long delay = floorNum * 3000 + 1000;
-		if (fault == (byte) 1) {
-			delay = 2000;
-		}
+
 
 		if (direction == (byte) 1) {
 			move(MotorDirection.UP);
 			// assuming it takes 3 second to travel between each floor
 			int floorsToTravel = floorNum - this.floorNumber;
-			System.out.println("Elevator " + this.elevatorNum + " moving UP to " + task + " floor " + floorNum
+			long delay = floorsToTravel * 3000 + 1000;
+			if (fault == (byte) 1) {
+				delay = 2000;
+			}
+			System.out.println("Elevator " + this.elevatorNum + " at floor "+ this.floorNumber + " moving UP to " + task + " floor " + floorNum
 					+ "... takes 3 seonds each floor...");
 			
 			//timer for fault 1 case
@@ -123,7 +123,7 @@ public class Elevator implements Runnable {
 					Thread.sleep(3000);
 					if ((System.currentTimeMillis() - start) > delay) {
 						running = false;
-						System.out.println("!!!Fault 1 occured (timer went off). Shutting down elevator " + elevatorNum +"!!!\n");
+						System.out.println("!!!Fault 1 occurred (timer went off). Shutting down elevator " + elevatorNum +"!!!\n");
 						data[1] = -1;
 						data[2] = -1;
 						try {//sending a packet to notify scheduler about this fault and elevator shutdown
@@ -150,15 +150,19 @@ public class Elevator implements Runnable {
 		} else if (direction == (byte) 2) {
 			move(MotorDirection.DOWN);
 			int floorsToTravel = this.floorNumber - floorNum;
-			System.out.println("Elevator " + this.elevatorNum + " moving DOWN to " + task + " floor " + floorNum
-					+ "... takes 3 seonds each floor.....");
+			long delay = floorsToTravel * 3000 + 1000;
+			if (fault == (byte) 1) {
+				delay = 2000;
+			}
+			System.out.println("Elevator " + this.elevatorNum + " at floor "+ this.floorNumber + " moving DOWN to " + task + " floor " + floorNum
+					+ "... takes 3 seconds each floor.....");
 
 			long start = System.currentTimeMillis();
 
 			for (int i = 1; i <= floorsToTravel; i++) {
 				try {
 					System.out.println(".");
-					System.out.println(this.floorNumber + i);
+					System.out.println(this.floorNumber - i);
 					Thread.sleep(3000);
 					if ((System.currentTimeMillis() - start) > delay) {
 						running = false;
@@ -330,7 +334,11 @@ public class Elevator implements Runnable {
 				System.exit(1);
 			}
 			// byte task[] = scheduler.getNextTask(0);
-			goToFloor(task[2], task[1], "pickup", task[3]);
+			if((int)task[2] < this.floorNumber) {
+				goToFloor(task[2], (byte)2, "pickup", task[3]);
+			}else if((int)task[2] > this.floorNumber) {
+				goToFloor(task[2], (byte)1, "pickup", task[3]);
+			}
 			if (running) {
 				goToFloor(task[0], task[1], "destination", task[3]);
 			}

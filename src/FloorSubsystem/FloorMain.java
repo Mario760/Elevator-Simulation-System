@@ -10,7 +10,7 @@ public class FloorMain {
 		String filePath = System.getProperty("user.dir") + "\\src\\input.txt";
 		System.out.println(filePath);
 		Thread receiver, parser;
-		FloorSubsystem floorSubsystem = new FloorSubsystem(8);
+		FloorSubsystem floorSubsystem = new FloorSubsystem(22);
 		receiver = new Thread(new FloorReceiver(floorSubsystem),"receiver"); // creating receiver thread
 		parser = new Thread(new InputScheduler(filePath, floorSubsystem), "parser"); // creating input parser thread
 		receiver.start(); // starting receiver
