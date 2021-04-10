@@ -67,6 +67,7 @@ public class InputScheduler implements Runnable{
 		        floorSubsystem.pressButton(floor, direction);
 		        floorSubsystem.sendInstruction(instructions[0], Integer.parseInt(instructions[1]), direction, Integer.parseInt(instructions[3]), Integer.parseInt(instructions[4]));   
 		    }
+			floorSubsystem.sendInstruction("99:99:99.0",-2,FloorDirection.UP,-2,-2);;
 		    lineReader.close(); // closing the file
 		} catch (IOException e) { // safe coding practices only
 		    System.out.println(e);

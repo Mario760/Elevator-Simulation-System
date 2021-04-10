@@ -1,11 +1,8 @@
 package Scheduler;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import java.net.*;
+import java.util.concurrent.TimeoutException;
 
 import FloorSubsystem.FloorDirection;
 
@@ -14,6 +11,7 @@ public class SchedulerFloorReceive implements Runnable {
 	private DatagramPacket send, receive;
 	private DatagramSocket toFloor;
 	private Scheduler scheduler;
+	private boolean firstReceive = true;
 	
 	public SchedulerFloorReceive(Scheduler scheduler) {
 		
@@ -36,9 +34,8 @@ public class SchedulerFloorReceive implements Runnable {
 			System.out.println("receiving floor instruction");
 			try {
 				toFloor.receive(receive);
-			}catch(IOException e) {
+			} catch (IOException e) {
 				e.printStackTrace();
-				
 			}
 
 			byte receiveByte[] = receive.getData();
@@ -58,7 +55,11 @@ public class SchedulerFloorReceive implements Runnable {
 				eee.printStackTrace();
 				
 			}
-			
+
+			if(firstReceive){
+				scheduler.setStartTime(System.nanoTime());
+				firstReceive=false;
+			}
 			parseByte(receiveByte);
 			
 		}
@@ -77,8 +78,11 @@ public class SchedulerFloorReceive implements Runnable {
 			floorButton = FloorDirection.UP;
 		}
 
-
-		scheduler.receiveInstruction(new Instruction(time, floor, floorButton, carButton, faultType));
+		if(faultType==-2){
+			scheduler.setFloorReceiveDone(true);
+		}else{
+			scheduler.receiveInstruction(new Instruction(time, floor, floorButton, carButton, faultType));
+		}
 	}
 	
 

@@ -30,6 +30,8 @@ public class Scheduler{
 	private DatagramSocket FloorSocket, elevatorSocket;
 	private Instruction instruction;
 	private boolean e1Available = true, e2Available = true, e3Available = true, e4Available = true;
+	private long startTime, elapsedTime, endTime=0;
+	private boolean floorReceiveDone = false, elevatorReceiveDone = false;
 
 	/**
 	 * Instantiates a new Scheduler.
@@ -63,6 +65,7 @@ public class Scheduler{
 				return;
 			}
 		}
+
 		this.instructions.add(instruction);
 
 		instructionEmpty = false;
@@ -214,9 +217,20 @@ public class Scheduler{
 		}
 
 		if(info[2]==0 && initializeElevator>=4){
-			sendInstructionToElevator(0);
+			if(floorReceiveDone&&instructionEmpty) {
+				endTime = System.nanoTime();
+				System.out.println("********************The endtime is "+endTime);
+				getElapsedTime();
+			}else{
+				sendInstructionToElevator(0);
+			}
 		}
 		initializeElevator++;
+	}
+
+	public void getElapsedTime(){
+		elapsedTime = endTime - startTime;
+		System.out.println("The time for executing all instructions is: "+(endTime-startTime)+" nanoseconds which is "+ elapsedTime/1000000000+" seconds");
 	}
 
 	/**
@@ -323,6 +337,14 @@ public class Scheduler{
 		}
 	}
 
+	public void setFloorReceiveDone(boolean done) {
+		floorReceiveDone = done;
+	}
+
+	public void setStartTime(long startTime){
+		System.out.println("**************The start time is "+startTime);
+		this.startTime = startTime;
+	}
 	/**
 	 * The entry point of application.
 	 *
@@ -335,4 +357,5 @@ public class Scheduler{
 		schedulerElevatorReceive.start();
 		schedulerFloorReceive.start();
 	}
+
 }
