@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 
 /**
  * The type Scheduler elevator receive.
@@ -15,6 +16,7 @@ public class SchedulerElevatorReceive implements Runnable{
     private DatagramPacket send, receive;
     private DatagramSocket elevatorSocket;
     private Scheduler scheduler;
+    private long endTime;
 
     /**
      * Instantiates a new Scheduler elevator receive.
@@ -38,7 +40,7 @@ public class SchedulerElevatorReceive implements Runnable{
             DatagramPacket elevatorReceivePacket = new DatagramPacket(new byte[3],3);
             try {
                 elevatorSocket.receive(elevatorReceivePacket);
-            }catch(IOException e) {
+            }catch (IOException e) {
                 e.printStackTrace();
             }
             byte[] tempInfo =  elevatorReceivePacket.getData();
