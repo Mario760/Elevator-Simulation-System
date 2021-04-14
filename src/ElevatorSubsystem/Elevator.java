@@ -108,6 +108,7 @@ public class Elevator implements Runnable {
 
 		if (direction == (byte) 1) {
 			move(MotorDirection.UP);
+			panel.setElevatorMoving(MotorDirection.UP);
 			// assuming it takes 3 second to travel between each floor
 			int floorsToTravel = floorNum - this.floorNumber;
 			long delay = floorsToTravel * movingTime + 1000;
@@ -115,7 +116,7 @@ public class Elevator implements Runnable {
 				delay = 2000;
 			}
 			System.out.println("Elevator " + this.elevatorNum + " at floor "+ this.floorNumber + " moving UP to " + task + " floor " + floorNum
-					+ "... takes " + movingTime/1000 + " seonds each floor...");
+					+ "... takes " + movingTime/1000 + " seconds each floor...");
 			
 			//timer for fault 1 case
 			long start = System.currentTimeMillis();
@@ -124,10 +125,12 @@ public class Elevator implements Runnable {
 				try {
 					System.out.println(".");
 					System.out.println(this.floorNumber + i);
+					panel.setElevatorFloor(this.floorNumber + i);
 					Thread.sleep(movingTime);
 					if ((System.currentTimeMillis() - start) > delay) {
 						running = false;
 						System.out.println("!!!Fault 1 occurred (timer went off). Shutting down elevator " + elevatorNum +"!!!\n");
+						panel.setElevatorFault("Elevator timer failure!");
 						data[1] = -1;
 						data[2] = -1;
 						try {//sending a packet to notify scheduler about this fault and elevator shutdown
@@ -153,6 +156,7 @@ public class Elevator implements Runnable {
 
 		} else if (direction == (byte) 2) {
 			move(MotorDirection.DOWN);
+			panel.setElevatorMoving(MotorDirection.DOWN);
 			int floorsToTravel = this.floorNumber - floorNum;
 			long delay = floorsToTravel * movingTime + 1000;
 			if (fault == (byte) 1) {
@@ -167,10 +171,12 @@ public class Elevator implements Runnable {
 				try {
 					System.out.println(".");
 					System.out.println(this.floorNumber - i);
+					panel.setElevatorFloor(this.floorNumber - i);
 					Thread.sleep(movingTime);
 					if ((System.currentTimeMillis() - start) > delay) {
 						running = false;
 						System.out.println("!!!Fault 1 occured (timer went off). Shutting down elevator " + elevatorNum +"!!!\n");
+						panel.setElevatorFault("Elevator timer failure!");
 						data[1] = -1;
 						data[2] = -1;
 						try {
@@ -199,10 +205,13 @@ public class Elevator implements Runnable {
 		// scheduler.putElevatorData(data);
 		if (task == "pickup") {
 			move(MotorDirection.PAUSED);
+			panel.setElevatorMoving(MotorDirection.PAUSED);
 		} else {
 			move(MotorDirection.STOPPED);
+			panel.setElevatorMoving(MotorDirection.STOPPED);
 		}
 		this.floorNumber = (int) floorNum;
+		panel.setElevatorFloor(this.floorNumber);
 
 		// open door
 		this.door = true;
@@ -245,6 +254,7 @@ public class Elevator implements Runnable {
 		System.out.println("Closing doors");
 		if(fault==(byte) 2 ) {
 			System.out.println("!!!Fault 2 occured (Door is not closed). Trying again... " + elevatorNum +"!!!\n");
+			panel.setElevatorFault("Door failed to close");
 			data[1] = (byte)floorNum;
 			data[2] = -2;
 			try {//sending a packet to scheduler so it would notify the floor doors
@@ -262,6 +272,7 @@ public class Elevator implements Runnable {
 				System.exit(1);
 			}
 			System.out.println("Closing doors again...");
+			panel.setElevatorFault("Everything is fine");
 		}
 		this.door = false;
 

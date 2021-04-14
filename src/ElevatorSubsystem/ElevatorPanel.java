@@ -68,7 +68,7 @@ public class ElevatorPanel extends JPanel{
 		labelElevatorMoving.setText("Elevator is currently: " + direction);
 	}
 	
-	public void setElevatorFault(byte[] data) {
-		labelFault.setText("Fault Code: " + data[1]); //TODO: insert fault bit here
+	public void setElevatorFault(String fault) {
+		labelFault.setText("Fault Code: " + fault); //TODO: insert fault bit here
 	}
 }
