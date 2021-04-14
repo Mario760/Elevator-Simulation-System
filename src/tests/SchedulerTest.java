@@ -31,11 +31,15 @@ public class SchedulerTest {
 		// first index of the elevatorData array
 		int[] testElevatorData1 = {1, 1};
 		int[] testElevatorData2 = {2, 2};
+		int[] testElevatorData3 = {3, 3};
+		int[] testElevatorData4 = {4, 4};
 		
 		scheduler.setElevatorData(testElevatorData1);
 		scheduler.setElevatorData(testElevatorData2);
+		scheduler.setElevatorData(testElevatorData3);
+		scheduler.setElevatorData(testElevatorData4);
 		
-		assertEquals(scheduler.arrangeCar(testInstruction), 2);
+		assertEquals(scheduler.arrangeCar(testInstruction), 3);
 	}
 	
 }
