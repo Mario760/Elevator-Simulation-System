@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ElevatorSubsystem.Elevator;
+import ElevatorSubsystem.ElevatorPanel;
 import Scheduler.MotorDirection;
 import Scheduler.Scheduler;
 
@@ -14,10 +15,12 @@ import Scheduler.Scheduler;
  */
 public class ElevatorTest {
     public Elevator elevator;
+    public ElevatorPanel elevatorPanel;
 
     @Before
     public void setUp() throws Exception {
-        elevator = new Elevator(1, 6);
+    	elevatorPanel = new ElevatorPanel(1, 1, MotorDirection.STOPPED);
+        elevator = new Elevator(1, 6, elevatorPanel);
     }
 
     @Test
@@ -48,7 +51,7 @@ public class ElevatorTest {
         assertEquals(elevator.getFloorNumber(), 5);
         assertEquals(elevator.getMotor(),MotorDirection.STOPPED);
         
-       
+        
         
         // Fault test cases for fault's 1 & 2
         
