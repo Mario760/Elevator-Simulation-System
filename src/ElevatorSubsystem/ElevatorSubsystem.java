@@ -27,7 +27,7 @@ public class ElevatorSubsystem {
 		elevator3.start();
 		elevator4.start();
 		
-		JFrame frame = new JFrame("Elevator Info");
+		JFrame frame = new JFrame("Elevator Info"); // creating a gui
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		JPanel pane = new JPanel(new GridBagLayout());
