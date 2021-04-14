@@ -29,10 +29,12 @@ public class Elevator implements Runnable {
 	private long movingTime = 3000;
 	private long doorTime = 3000;
 	byte[] data;
+	private ElevatorPanel panel;
 
-	public Elevator(int elevatorNum, int buttonsNum) {
+	public Elevator(int elevatorNum, int buttonsNum, ElevatorPanel panel) {
 		this.elevatorNum = elevatorNum;
 		this.floorNumber = 1;
+		this.panel = panel; // GUI stuff :O
 		this.buttons = new ArrayList<>();
 		data = new byte[3];
 		for (int i = 1; i <= buttonsNum; i++) {
